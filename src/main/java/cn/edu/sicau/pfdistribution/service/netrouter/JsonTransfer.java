@@ -1,7 +1,10 @@
 package cn.edu.sicau.pfdistribution.service.netrouter;
 
 import cn.edu.sicau.pfdistribution.Constants;
-import cn.edu.sicau.pfdistribution.entity.*;
+import cn.edu.sicau.pfdistribution.entity.Risk;
+import cn.edu.sicau.pfdistribution.entity.SectionRisk;
+import cn.edu.sicau.pfdistribution.entity.StationAndSectionPassengers;
+import cn.edu.sicau.pfdistribution.entity.StationRisk;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
@@ -17,15 +20,13 @@ import java.util.Map;
 public class JsonTransfer {
     @Autowired
     public StationAndSectionPassengers stationAndSectionPassengers;
-
     @Autowired
-
     public Risk risk;
 
     public boolean stationDataAnalysis(JSONObject jsonObject){
         try {
             //JSONObject jsonObject = new JSONObject(data);
-            //        String record_time = jsonObject.optString("Recordtime");
+            //        String record_time = jsonObject.optString("RecordTime");
             JSONArray station_loads = jsonObject.getJSONArray("StationLoads");
             JSONArray Section_loads = jsonObject.getJSONArray("SectionLoads");
             Map<String, List<String>> stationP = new HashMap<>();
@@ -44,8 +45,9 @@ public class JsonTransfer {
             }
             for (int i = 0; i < Section_loads.length(); i++) {
                 List<String> sectionPassengers = new ArrayList<>();
-                String str = station_loads.getString(i);
+                String str = Section_loads.getString(i);
                 JSONObject s = new JSONObject(str);
+                s.getString("TrainNum");//列车数目
                 sectionPassengers.add(s.getString("UtilizationRate"));
                 sectionPassengers.add(s.getString("Passengers"));
                 sectionPassengers.add(s.getString("Volume"));
@@ -53,6 +55,7 @@ public class JsonTransfer {
             }
             stationAndSectionPassengers.setStationP(stationP);
             stationAndSectionPassengers.setSectionP(sectionP);
+            System.out.println("StationAndSectionNetRouter数据处理成功" );
             return true;
         }catch (Exception e){
             return false;
@@ -78,9 +81,10 @@ public class JsonTransfer {
                 sectionRisk.setStartTime(tmp.getString(Constants.ALARM_START_TIME));
                 sectionRisk.setEndTime(tmp.getString(Constants.ALARM_END_TIME));
                 sectionRisk.setAlarmLevel(tmp.getInt(Constants.ALARM_LEVEL));
+                sectionRisks.add(sectionRisk);
             }
         }
-        risk.setSectionRisks(sectionRisks);
         risk.setStationsRisks(stationRisks);
+        risk.setSectionRisks(sectionRisks);
     }
 }

@@ -1,6 +1,8 @@
 package cn.edu.sicau.pfdistribution.entity;
 
-public class StationRisk {
+import java.io.Serializable;
+
+public class StationRisk implements Serializable {
     private int stationId;
     private int alarmLevel;
     private String startTime;

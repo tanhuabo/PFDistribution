@@ -3,7 +3,6 @@ package cn.edu.sicau.pfdistribution.service.kspdistribution
 import java.util
 
 import cn.edu.sicau.pfdistribution.entity.{DirectedEdge, DirectedPath}
-import cn.edu.sicau.pfdistribution.service.kspcalculation.util.Path
 
 import scala.collection.mutable
 import scala.collection.mutable.Map
@@ -32,6 +31,11 @@ trait CalculateBaseInterface {
 
   //按照时间粒度，将分配到各个路径下的结果划分到区间上，返回区间断面图
   def odRegionWithTime(map: mutable.Map[Array[DirectedEdge], Double],interval:Int):mutable.Map[String, Double]
+
+  //计算站点进出站人数
+  def stationInAndOutP(map: mutable.Map[Array[DirectedEdge], Double]): List[mutable.Map[String, Double]]
+  //计算换乘人数
+  def transferPassengers(map: mutable.Map[Array[DirectedEdge], Double]): mutable.Map[String, Double]
 
 
 }

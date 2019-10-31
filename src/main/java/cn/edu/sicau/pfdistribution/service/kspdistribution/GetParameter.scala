@@ -3,6 +3,7 @@ package cn.edu.sicau.pfdistribution.service.kspdistribution
 import java.io.Serializable
 
 import org.springframework.stereotype.Service
+
 import scala.collection.JavaConverters._
 
 @Service
@@ -78,12 +79,5 @@ class GetParameter extends Serializable{
     val time = 24*60
     return time
   }
-
-  /*  //判断是否换乘
-    def DetermineWhetherToTransfer(beforeSite: String,nextSite: String):Boolean={
-
-
-      return false
-    }*/
 
 }

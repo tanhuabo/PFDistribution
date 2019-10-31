@@ -88,10 +88,10 @@ public final class LazyEppstein extends Eppstein implements KSPAlgorithm {
 
         /* Make indexes to give (fast) access to these heaps later */
         // Heap H_out(v) for every node v
-        HashMap<String,EppsteinHeap> nodeHeaps = new HashMap<String, EppsteinHeap>(graph.numNodes());
-        HashMap<String,EppsteinHeap> edgeHeaps = new HashMap<String, EppsteinHeap>(graph.numEdges());
+        HashMap<String, EppsteinHeap> nodeHeaps = new HashMap<String, EppsteinHeap>(graph.numNodes());
+        HashMap<String, EppsteinHeap> edgeHeaps = new HashMap<String, EppsteinHeap>(graph.numEdges());
         // Heap H_T(v) for every node v
-        HashMap<String,EppsteinHeap> outrootHeaps = new HashMap<String, EppsteinHeap>();
+        HashMap<String, EppsteinHeap> outrootHeaps = new HashMap<String, EppsteinHeap>();
         HashMap<String, EppsteinArrayHeap> arrayHeaps = new HashMap<String, EppsteinArrayHeap>(graph.numNodes());
 
         // Create a virtual/dummy heap that is the root of the overall Eppstein heap. It represents the best path from

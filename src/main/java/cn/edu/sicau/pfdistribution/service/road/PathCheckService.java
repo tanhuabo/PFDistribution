@@ -1,9 +1,7 @@
 package cn.edu.sicau.pfdistribution.service.road;
 
-        import cn.edu.sicau.pfdistribution.entity.DirectedEdge;
-        import cn.edu.sicau.pfdistribution.entity.DirectedPath;
-        import cn.edu.sicau.pfdistribution.service.kspcalculation.Edge;
-        import cn.edu.sicau.pfdistribution.service.kspcalculation.util.Path;
+import cn.edu.sicau.pfdistribution.entity.DirectedEdge;
+import cn.edu.sicau.pfdistribution.entity.DirectedPath;
 
 public interface PathCheckService {
     boolean checkPath(DirectedPath path);

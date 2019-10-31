@@ -3,7 +3,6 @@ package cn.edu.sicau.pfdistribution.entity;
 import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
-import java.lang.String;
 
 /**
  * @author 谭华波
@@ -12,6 +11,8 @@ import java.lang.String;
 public class TongHaoPathType implements Serializable{
     private String path;
     private String passengers;
+    private String startStation;
+    private String endStation;
 
     public String getPath() {
         return path;
@@ -27,5 +28,20 @@ public class TongHaoPathType implements Serializable{
 
     public void setPassengers(String passengers) {
         this.passengers = passengers;
+    }
+    public String getStartStation() {
+        return startStation;
+    }
+
+    public void setStartStation(String startStation) {
+        this.startStation = startStation;
+    }
+
+    public String getEndStation() {
+        return endStation;
+    }
+
+    public void setEndStation(String endStation) {
+        this.endStation = endStation;
     }
 }

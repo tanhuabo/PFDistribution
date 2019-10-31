@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
+import java.net.InetAddress;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -83,7 +84,7 @@ public class RiskLevelNetRouter {
         Address destaddr1 = new Address((byte) 8, (byte) 1, (short) 4, (byte) 1, (short) 6);
         destAddrs.add(destaddr1);
 //注册信息
-/*        String reginfo =
+        String reginfo =
                 "<in_condition>\n"+
                         "<rec>\n"+
                         "<protocol418_condition>\n"+
@@ -91,9 +92,9 @@ public class RiskLevelNetRouter {
                         "<type_func>0x04,0x09</type_func>\n"+
                         "</protocol418_condition>\n"+
                         "</rec>\n"+
-                        "</in_condition>\n";*/
-
-        NetRouterClient netRouterClient = new NetRouterClient("Test", "10.2.55.70", 9003, "192.168.69.108", 9005, localaddr, "");
+                        "</in_condition>\n";
+        String ip= InetAddress.getLocalHost().getHostAddress();
+        NetRouterClient netRouterClient = new NetRouterClient("Test", "10.11.26.14", 9003, ip, 9005, localaddr, "");
         while (!netRouterClient.start()) {
             log.info("RiskLevelNetRouter Start fails.");
             Thread.sleep(10);
@@ -113,11 +114,11 @@ public class RiskLevelNetRouter {
                        String risk = fields[0];
                        byte[] risk1 = risk.getBytes();
                        System.out.println("数据的前两个类型码"+risk1[0]+" "+risk1[1]);
-                       if(Constants.ENVIRONMENT_RISK.equals(risk)){
+                       if(Constants.ENVIRONMENT_RISK.equals(risk)) {
                            JSONArray jsonArray = new JSONArray("[" + fields[1]);
                            jsonTransfer.riskDataAnalysis(jsonArray);
                            log.info("RiskNetRouter数据处理成功");
-                        }
+                       }
                     }catch (Exception e) {
                         log.debug("RiskNetRouter数据不对应");
                     }

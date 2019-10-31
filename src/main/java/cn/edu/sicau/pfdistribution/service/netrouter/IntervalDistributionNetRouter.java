@@ -1,10 +1,10 @@
 package cn.edu.sicau.pfdistribution.service.netrouter;
 
-
 import NetRouterClient.Address;
 import NetRouterClient.NetRouterClient;
 import NetRouterClient.RecvMessage;
 import NetRouterClient.SendMessage;
+import cn.edu.sicau.pfdistribution.Constants;
 import cn.edu.sicau.pfdistribution.service.kspdistribution.MainDistribution;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import scala.Tuple2;
 
 import java.io.*;
+import java.net.InetAddress;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -91,8 +92,8 @@ public class IntervalDistributionNetRouter {
         List<Address> destAddrs = new LinkedList<Address>();
         Address destaddr1 = new Address((byte) 8, (byte) 1, (short) 2, (byte) 1, (short) 6);
         destAddrs.add(destaddr1);
-
-        NetRouterClient netRouterClient = new NetRouterClient("Test", "10.2.55.70", 9003, "192.168.69.108", 9005, localaddr, "");
+        String ip= InetAddress.getLocalHost().getHostAddress();
+        NetRouterClient netRouterClient = new NetRouterClient("Test", ip, 9003, "10.2.132.70", 9005, localaddr, "");
         while (!netRouterClient.start()) {
             log.info("IntervalDistributionNetRouter Start fails.");
             Thread.sleep(10);
@@ -105,29 +106,37 @@ public class IntervalDistributionNetRouter {
             if (netRouterClient.isNet1Connected() || netRouterClient.isNet2Connected()) {
                 RecvMessage recvMessage = new RecvMessage();
                 if (netRouterClient.receiveBlockMessage(recvMessage)) {
-                    try {
+                    /*try {*/
                     Map<String, String> message = gson.fromJson(recvMessage.getMessage(), new TypeToken<Map<String, String>>() {
                     }.getType());
                     if (message != null) {
-                            final List<Tuple2<String, String>> list = new java.util.ArrayList<>(message.size());
-                            for (final Map.Entry<String, String> entry : message.entrySet()) {
-                                list.add(Tuple2.apply(entry.getKey(), entry.getValue()));
+                        final List<Tuple2<String, String>> list = new java.util.ArrayList<>(message.size());
+                        for (final Map.Entry<String, String> entry : message.entrySet()) {
+                            list.add(Tuple2.apply(entry.getKey(), entry.getValue()));
+                        }
+                        final scala.collection.Seq<Tuple2<String, String>> seq = scala.collection.JavaConverters.asScalaBufferConverter(list).asScala().toSeq();
+                        scala.collection.immutable.Map<String, String> abc = (scala.collection.immutable.Map<String, String>) scala.collection.immutable.Map$.MODULE$.apply(seq);
+                        log.info("IntervalDistributionNetRouter数据接受成功");
+                        int i,j;
+                        for(i=0;i<24;i++){
+                            Constants.DATA_DATE_HOUR = i;
+                            for (j=0;j<60;j=j+5){
+                                Constants.DATA_DATE_MIN = j;
+                                try{
+                                    distribution.intervalTriggerTask(abc);
+                                }catch (Exception e){
+                                    log.info("错误日期："+Constants.DATA_DATE_HOUR+Constants.DATA_DATE_MIN);
+                                }
                             }
-                            final scala.collection.Seq<Tuple2<String, String>> seq = scala.collection.JavaConverters.asScalaBufferConverter(list).asScala().toSeq();
-                            scala.collection.immutable.Map<String, String> abc = (scala.collection.immutable.Map<String, String>) scala.collection.immutable.Map$.MODULE$.apply(seq);
-                            log.info("IntervalDistributionNetRouter数据接受成功");
-                            distribution.intervalTriggerTask(abc);
-                            SendData(netRouterClient, destAddrs, null);
+                        }
+
+                        SendData(netRouterClient, destAddrs, null);
                     }
-                    }catch (Exception e){
+                    /*}catch (Exception e){
                         log.info("IntervalDistributionNetRouter数据不对应");
-                    }
+                    }*/
                 }
             }
         }
     }
 }
-        /*try {
-        }catch (Exception e){
-        System.out.println("IntervalDistributionNetRouter处理出错");
-        }*/

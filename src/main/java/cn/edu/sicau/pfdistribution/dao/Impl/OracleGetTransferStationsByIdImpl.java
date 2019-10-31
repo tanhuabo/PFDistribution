@@ -14,9 +14,9 @@ import java.util.Map;
 @Repository
 public class OracleGetTransferStationsByIdImpl implements OracleGetTransferStationsById {
     @Autowired
-    @Qualifier("mysqlJdbcTemplate")
+    @Qualifier("oracleJdbcTemplate")
     private JdbcTemplate jdbcTemplate;
-    private String getLineSql="select * from dic_linestation where CZ_ID=";
+    private String getLineSql="select * from \"SCOTT\".\"dic_linestation\" where CZ_ID=";
 
     @Override
     public List<List<String>> getTransferStations(List<String> odStations) {
@@ -34,13 +34,13 @@ public class OracleGetTransferStationsByIdImpl implements OracleGetTransferStati
         int preLine;
         Iterator preit = pre.iterator();
         Map LineMap_pre = (Map) preit.next();
-        preLine = (int) LineMap_pre.get("LINE_ID");
+        preLine =Integer.parseInt(LineMap_pre.get("LINE_ID").toString());
         //初始化当前站点所属线路id
         List mid=jdbcTemplate.queryForList(getLineSql+Integer.parseInt(odStations.get(1)));
         int midLine;
         Iterator midit = mid.iterator();
         Map LineMap_mid = (Map) midit.next();
-        midLine = (int) LineMap_mid.get("LINE_ID");
+        midLine = Integer.parseInt(LineMap_mid.get("LINE_ID").toString());
         //标记第一个站和第二个站
         JudgeTransfer[0]=1;
         JudgeTransfer[1]=1;
@@ -51,7 +51,7 @@ public class OracleGetTransferStationsByIdImpl implements OracleGetTransferStati
             int rearLine;
             Iterator rearit = rear.iterator();
             Map LineMap_rear = (Map) rearit.next();
-            rearLine = (int) LineMap_rear.get("LINE_ID");
+            rearLine =Integer.parseInt(LineMap_rear.get("LINE_ID").toString());
             //判断当前站点是否是换乘点
             JudgeTransfer[i]=1;
             if(preLine==rearLine)
@@ -73,13 +73,19 @@ public class OracleGetTransferStationsByIdImpl implements OracleGetTransferStati
                 int len = transferStationsList.size();
                 if(len !=0 && Cz_name.equals(transferStationsList.get(len - 1)))
                     continue;
-                else transferStationsList.add(Cz_name);
+                else {
+                    transferStationsList.add(Cz_name);
+                    //获得当前站点所在线路
+                    String lineName = selectStationName(Integer.parseInt(odStations.get(i)));
+                    transferStationsList.add(lineName);
+                }
             }
         }
-        for(int i=0;i<transferStationsList.size()-1;i++){
+        for(int i=0;i<transferStationsList.size()-3;i=i+4){
             List<String> transferResult=new ArrayList<>();
             transferResult.add(transferStationsList.get(i));
-            transferResult.add(transferStationsList.get(i+1));
+            transferResult.add(transferStationsList.get(i+2));
+            transferResult.add(transferStationsList.get(i+3));
             TransferResult.add(transferResult);
         }
         return TransferResult;
@@ -101,6 +107,15 @@ public class OracleGetTransferStationsByIdImpl implements OracleGetTransferStati
             else stations.add(Cz_name);
         }
         return stations;
+    }
+
+    @Override
+    public String selectStationName(Integer id){
+        Map stationNameMap=jdbcTemplate.queryForMap("SELECT LJM\n" +
+                "from \"SCOTT\".\"dic_station\"\n" +
+                "WHERE CZ_ID="+id+"");
+        String lineName= (String) stationNameMap.get("LJM");
+        return lineName;
     }
 }
 

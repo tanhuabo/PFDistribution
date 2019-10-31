@@ -1,6 +1,5 @@
 package cn.edu.sicau.pfdistribution.service.Web;
 
-import cn.edu.sicau.pfdistribution.dao.oracle.OracleGetTransferStations;
 import cn.edu.sicau.pfdistribution.dao.oracle.OracleGetTransferStationsById;
 import cn.edu.sicau.pfdistribution.entity.KspSearchResult;
 import cn.edu.sicau.pfdistribution.entity.SWJTU_DTO;
@@ -8,7 +7,6 @@ import cn.edu.sicau.pfdistribution.service.kspdistribution.MainDistribution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 @Service

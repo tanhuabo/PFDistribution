@@ -1,6 +1,8 @@
 package cn.edu.sicau.pfdistribution.entity;
 
-public class SectionRisk {
+import java.io.Serializable;
+
+public class SectionRisk implements Serializable {
     private int sectionId;
     private int alarmLevel;
     private String startTime;

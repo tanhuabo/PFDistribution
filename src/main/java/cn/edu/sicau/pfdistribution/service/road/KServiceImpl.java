@@ -8,13 +8,8 @@ import cn.edu.sicau.pfdistribution.service.kspcalculation.Edge;
 import cn.edu.sicau.pfdistribution.service.kspcalculation.Graph;
 import cn.edu.sicau.pfdistribution.service.kspcalculation.KSPUtil;
 import cn.edu.sicau.pfdistribution.service.kspcalculation.util.Path;
-import com.google.gson.JsonArray;
-import org.apache.avro.generic.GenericData;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
-import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.stereotype.Service;
-import org.stringtemplate.v4.ST;
 import scala.Serializable;
 
 import javax.annotation.PostConstruct;
@@ -53,7 +48,8 @@ public class KServiceImpl implements KService, Serializable {
      * @return
      */
     @Override
-    public List<DirectedPath> computeStatic(List<Section>sections, Map<String, List<String>>stationsInfo, String o, String d, String paramType,String resultType) {
+    public List<DirectedPath> computeStatic(List<Section>sections, Map<String, List<String>>stationsInfo, String o, String d, String paramType, String resultType) {
+//        int k = 5;
         String newOD[] = null;
         if(Constants.PARAM_ID.equals(paramType)){
             newOD = stationIdToName(sections, o, d);
@@ -84,13 +80,14 @@ public class KServiceImpl implements KService, Serializable {
         if(Constants.RETURN_EDGE_NAME.equals(resultType)){
             directedPath = convertPathToDirectedNamePath(newPaths);
         }else if(Constants.RETURN_EDGE_ID.equals(resultType)){
-            directedPath = convertPathToDirectedIdPathTest(sections, stationsInfo, newPaths);
+            directedPath = convertPathToDirectedIdPathTest(sections, newPaths);
         }
         return directedPath;
     }
 
     @Override
     public List<Path> computeDynamicRemoveAlarmPath(List<Section> sections, Map<String, List<String>> stationsInfo, String o, String d, String paramType, Risk risk) {
+//        int k = 5;
         String newOD[] = null;
         if(Constants.PARAM_ID.equals(paramType)){
             newOD = stationIdToName(sections, o, d);
@@ -118,7 +115,6 @@ public class KServiceImpl implements KService, Serializable {
         }
         List<Path>newPaths = removeWrongPaths(paths);
         if(risk == null)return newPaths;
-        List<Integer>removeIndex = getAlarmIndexFromNamePath(newPaths, sections, risk);
         newPaths = removeAlarmPath(newPaths, sections, risk);
         return newPaths;
     }
@@ -139,7 +135,8 @@ public class KServiceImpl implements KService, Serializable {
                 String[] tmp = stationIdToName(sections, o, d);
                 if(tmp[0].equals(tmp[1])){
                     DirectedPath directedPath = new DirectedPath();
-                    Edge edge = new Edge();DirectedEdge directedEdge = new DirectedEdge();
+                    Edge edge = new Edge();
+                    DirectedEdge directedEdge = new DirectedEdge();
                     edge.setFromNode(o);edge.setToNode(d);edge.setWeight(0);
                     directedEdge.setEdge(edge);directedEdge.setDirection(Constants.CHANGE_STATION);
                     LinkedList<DirectedEdge>edges = new LinkedList<>();
@@ -166,6 +163,23 @@ public class KServiceImpl implements KService, Serializable {
      */
     @Override
     public List<DirectedPath> computeDynamic(List<Section>sections, Map<String, List<String>>stationsInfo, String o, String d, String paramType, String resultType, Risk risk) {
+        if(o.equals(d))return null;
+        if(Constants.PARAM_ID.equals(paramType)) {
+            String[] tmp = stationIdToName(sections, o, d);
+            if(tmp[0].equals(tmp[1])){
+                DirectedPath directedPath = new DirectedPath();
+                Edge edge = new Edge();
+                DirectedEdge directedEdge = new DirectedEdge();
+                edge.setFromNode(o);edge.setToNode(d);edge.setWeight(0);
+                directedEdge.setEdge(edge);directedEdge.setDirection(Constants.CHANGE_STATION);
+                LinkedList<DirectedEdge>edges = new LinkedList<>();
+                edges.add(directedEdge);
+                directedPath.setEdges(edges);directedPath.setTotalCost(0);
+                List<DirectedPath>directedPaths = new ArrayList<>();
+                directedPaths.add(directedPath);
+                return directedPaths;
+            }
+        }
         List<Path> paths = null;
         paths = computeDynamicRemoveAlarmPath(sections, stationsInfo, o, d, paramType, risk);
         if(paths == null)return null;
@@ -173,7 +187,7 @@ public class KServiceImpl implements KService, Serializable {
         if(Constants.RETURN_EDGE_NAME.equals(resultType)){
             directedPaths = convertPathToDirectedNamePath(paths);
         }else if(Constants.RETURN_EDGE_ID.equals(resultType)){
-            directedPaths = convertPathToDirectedIdPathTest(sections, stationsInfo, paths);
+            directedPaths = convertPathToDirectedIdPathTest(sections, paths);
         }
         return directedPaths;
     }
@@ -190,36 +204,53 @@ public class KServiceImpl implements KService, Serializable {
      */
     @Override
     public Map<String, List<DirectedPath>> computeDynamic(Map<String, String> ods, String paramType, String resultType, Risk risk) {
-        if(ods == null) return null;
-        Map<String, List<DirectedPath>>odsPaths = new HashMap<>();
-        Iterator<String> it = ods.keySet().iterator();
-        while(it.hasNext()){
-            String[] odStr = it.next().split(" ");
-            String o = odStr[0];
-            String d = odStr[1];
-            if(o.equals(d)){
-                continue;
-            }
-            if(Constants.PARAM_ID.equals(paramType)) {
-                String[] tmp = stationIdToName(sections, o, d);
-                if(tmp[0].equals(tmp[1])){
-                    DirectedPath directedPath = new DirectedPath();
-                    Edge edge = new Edge();DirectedEdge directedEdge = new DirectedEdge();
-                    edge.setFromNode(o);edge.setToNode(d);edge.setWeight(0);
-                    directedEdge.setEdge(edge);directedEdge.setDirection(Constants.CHANGE_STATION);
-                    LinkedList<DirectedEdge>edges = new LinkedList<>();
-                    edges.add(directedEdge);
-                    directedPath.setEdges(edges);directedPath.setTotalCost(Constants.CHANGE_LENGTH);
-                    List<DirectedPath>directedPaths = new ArrayList<>();
-                    directedPaths.add(directedPath);
-                    odsPaths.put(o + " " + d, directedPaths);
-                    continue;
-                }
-            }
-            List<DirectedPath>paths = computeDynamic(sections, stationInfo, o, d, paramType, resultType,risk);
-            odsPaths.put(o + " " + d, paths);
-        }
-        return odsPaths;
+              if (ods == null) return null;
+              Map<String, List<DirectedPath>> odsPaths = new HashMap<>();
+              Iterator<String> it = ods.keySet().iterator();
+              while (it.hasNext()) {
+                  String[] odStr = it.next().split(" ");
+                  String o = odStr[0];
+                  String d = odStr[1];
+                  try {
+                      List<DirectedPath> paths = computeDynamic(sections, stationInfo, o, d, paramType, resultType, risk);
+                      if(paths == null) {
+                          DirectedPath directedPath = new DirectedPath();
+                          Edge edge = new Edge();
+                          DirectedEdge directedEdge = new DirectedEdge();
+                          edge.setFromNode(o);
+                          edge.setToNode(d);
+                          edge.setWeight(-1);
+                          directedEdge.setEdge(edge);
+                          directedEdge.setDirection(Constants.CHANGE_STATION);
+                          LinkedList<DirectedEdge> edges = new LinkedList<>();
+                          edges.add(directedEdge);
+                          directedPath.setEdges(edges);
+                          directedPath.setTotalCost(Constants.CHANGE_LENGTH);
+                          List<DirectedPath> directedPaths = new ArrayList<>();
+                          directedPaths.add(directedPath);
+                          odsPaths.put(o + " " + d, directedPaths);
+                      }else {
+                          odsPaths.put(o + " " + d, paths);
+                      }
+                  } catch (Exception e) {
+                      DirectedPath directedPath = new DirectedPath();
+                      Edge edge = new Edge();
+                      DirectedEdge directedEdge = new DirectedEdge();
+                      edge.setFromNode(o);
+                      edge.setToNode(d);
+                      edge.setWeight(-1);
+                      directedEdge.setEdge(edge);
+                      directedEdge.setDirection(Constants.CHANGE_STATION);
+                      LinkedList<DirectedEdge> edges = new LinkedList<>();
+                      edges.add(directedEdge);
+                      directedPath.setEdges(edges);
+                      directedPath.setTotalCost(Constants.CHANGE_LENGTH);
+                      List<DirectedPath> directedPaths = new ArrayList<>();
+                      directedPaths.add(directedPath);
+                      odsPaths.put(o + " " + d, directedPaths);
+                  }
+              }
+              return odsPaths;
     }
 
     /**
@@ -228,7 +259,6 @@ public class KServiceImpl implements KService, Serializable {
      * @return
      */
     private int getPathAboveK(List<String> stations){
-        //Map<String, List<String>>stationInfo = roadDistributionDao.getAllStationInfo();
         int k = 0;
         for(int i = 0; i < stations.size(); i++){
             String station = stations.get(i);
@@ -253,6 +283,7 @@ public class KServiceImpl implements KService, Serializable {
             List<Edge> p = paths.get(i).getEdges();
             Map<String, Integer> deletePathMap = new HashMap<>();
             deletePathMap.put(p.get(0).getFromNode(), 1);
+            deletePathMap.put(p.get(0).getToNode(), 1);
             for(int j = 1; j < p.size(); j++){
                 if(deletePathMap.containsKey(p.get(j).getToNode())){
                     flag = false;
@@ -327,7 +358,7 @@ public class KServiceImpl implements KService, Serializable {
         }
         return directedPaths;
     }
-    private List<DirectedPath>convertPathToDirectedIdPathTest(List<Section>sections, Map<String, List<String>>stations,List<Path>paths){
+    private List<DirectedPath>convertPathToDirectedIdPathTest(List<Section>sections, List<Path>paths){
         List<DirectedPath>directedPaths = new ArrayList<>();
         for(Path path:paths){
             List<Edge>pathEdges = path.getEdges();
@@ -342,7 +373,9 @@ public class KServiceImpl implements KService, Serializable {
                         DirectedEdge directedEdge = new DirectedEdge();
                         directedEdge.setEdge(newEdge);
                         directedEdge.setDirection(section.getDirection());
-                        if(directedEdges.size()>=1){
+                        if(directedEdges.size() == 0){
+                            //
+                        }else{
                             if(!directedEdges.getLast().getEdge().getToNode().equals(directedEdge.getEdge().getFromNode())){
                                 DirectedEdge changeDirectedEdge = new DirectedEdge();
                                 Edge changeEdge = new Edge();
@@ -390,6 +423,7 @@ public class KServiceImpl implements KService, Serializable {
 
     //section index
     private List<Integer> getAlarmSectionIdxWithNamePath(List<Path>paths, List<Edge>alarmSection){
+        if(alarmSection == null)return null;
         List<Integer>index = new ArrayList<>();
         int i = 0;
         for(Path path:paths){
@@ -408,7 +442,8 @@ public class KServiceImpl implements KService, Serializable {
     }
 
     //station index
-    private List<Integer> getAlarmStationIdxWithNamePath(List<Path>paths,List<Section>sections, List<StationRisk>stationRisks){
+    private List<Integer> getAlarmStationIdxWithNamePath(List<Path>paths, List<Section>sections, List<StationRisk>stationRisks){
+        if(stationRisks == null)return null;
         List<String>alarmNameStations = getStationNameFromAlarmStationId(sections, stationRisks);
         int i = 0;
         List<Integer>alarmStationIndex = new ArrayList<>();
@@ -433,7 +468,6 @@ public class KServiceImpl implements KService, Serializable {
         if(sectionRisks == null)return null;
         List<Edge>alarmNameEdge = new ArrayList<>();
         for(SectionRisk sectionRisk:sectionRisks){
-            if(sectionRisk.getAlarmLevel() == 0)return null;
             long currentTime = TimeUtil.getCurrentUnixTime();
             long alarmStart = TimeUtil.getUnixTime(Constants.ALARM__TIME_FORMAT, sectionRisk.getStartTime());
             long alarmEnd = TimeUtil.getUnixTime(Constants.ALARM__TIME_FORMAT, sectionRisk.getEndTime());
@@ -457,10 +491,10 @@ public class KServiceImpl implements KService, Serializable {
         if(stationRisks == null)return null;
         List<String>alarmStation = new ArrayList<>();
         for(StationRisk stationRisk:stationRisks){
-            if(stationRisk.getAlarmLevel() == 0)return null;
             long currentTime = TimeUtil.getCurrentUnixTime();
             long alarmStart = TimeUtil.getUnixTime(Constants.ALARM__TIME_FORMAT, stationRisk.getStartTime());
             long alarmEnd = TimeUtil.getUnixTime(Constants.ALARM__TIME_FORMAT, stationRisk.getEndTime());
+            //currentTime >=alarmStart && currentTime < alarmEnd
             if(currentTime >=alarmStart && currentTime < alarmEnd){
                 for(Section section:sections){
                     if(stationRisk.getAlarmLevel() == 1 && stationRisk.getStationId() == section.getFromId()){
@@ -486,9 +520,14 @@ public class KServiceImpl implements KService, Serializable {
         List<Integer>tmp1 = getAlarmSectionIdxWithNamePath(paths, alarmNameEdges);
         //station
         List<Integer>tmp2 = getAlarmStationIdxWithNamePath(paths, sections, risk.getStationsRisks());
-        for(Integer tmp:tmp2){
-            tmp1.add(tmp);
+        if(tmp1 == null && tmp2 == null)return null;
+        else if(tmp1 == null)return tmp2;
+        else if(tmp2 == null)return tmp1;
+        else{
+            for(Integer tmp:tmp2){
+                tmp1.add(tmp);
+            }
+            return tmp1;
         }
-        return tmp1;
     }
 }

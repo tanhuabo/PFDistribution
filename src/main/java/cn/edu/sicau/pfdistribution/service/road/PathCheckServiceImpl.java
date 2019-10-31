@@ -2,9 +2,6 @@ package cn.edu.sicau.pfdistribution.service.road;
 
 import cn.edu.sicau.pfdistribution.entity.DirectedEdge;
 import cn.edu.sicau.pfdistribution.entity.DirectedPath;
-import cn.edu.sicau.pfdistribution.service.kspcalculation.Edge;
-import cn.edu.sicau.pfdistribution.service.kspcalculation.util.Path;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.io.Serializable;

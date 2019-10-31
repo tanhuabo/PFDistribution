@@ -53,8 +53,8 @@ public class OracleLink {
     {
         OracleImpl.createKspRegionTable();
     }
-    public void kspRegionAdd(String route, int passenger){
-        OracleImpl.kspRegionAdd(route,passenger);
+    public void kspRegionAdd(String path, double passenger,String startStation,String endStation){
+        OracleImpl.kspRegionAdd(path,passenger,startStation,endStation);
     }
     public void deleteAllKspRegion(){
         OracleImpl.deleteAllKspRegion();
@@ -63,4 +63,18 @@ public class OracleLink {
     public List<String> odFromOracleToList(){
         return OracleImpl.odFromOracleToList();
     }
+
+
+
+    //样例数据处理test
+    public Map<String, Integer> odGet(int hour,int minute){
+        return OracleImpl.odGet123(hour,minute);
+    }
+    public void savePassengers_table(String data_day,String data_hour,String station,double in_passengers,double out_passengers){
+        OracleImpl.savePassengers_table(data_day,data_hour,station,in_passengers,out_passengers);
+    }
+    public  void saveTransfer(String data_day,String data_hour,String transfer_station,double transfer_passengers){
+        OracleImpl.saveTransfer(data_day,data_hour,transfer_station,transfer_passengers);
+    }
+
 }

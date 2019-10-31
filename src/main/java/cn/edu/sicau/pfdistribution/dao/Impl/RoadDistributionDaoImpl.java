@@ -28,7 +28,7 @@ import java.util.Map;
 @Service
 public class RoadDistributionDaoImpl implements RoadDistributionDao, Serializable {
     @Autowired
-    @Qualifier("mysqlJdbcTemplate")
+    @Qualifier("oracleJdbcTemplate")
     private JdbcTemplate jdbcTemplate;
 
 
@@ -38,7 +38,7 @@ public class RoadDistributionDaoImpl implements RoadDistributionDao, Serializabl
      */
     @Override
     public Map<String, List<String>> getAllStationInfo() {
-        String sql = "SELECT station.CZ_NAME stationName, station.LJM line FROM dic_station station";
+        String sql = "SELECT station.CZ_NAME stationName, station.LJM line FROM \"SCOTT\".\"dic_station\" station";
         RowMapper rowMapper = new BeanPropertyRowMapper(SimpleStation.class);
         List<SimpleStation>stations = jdbcTemplate.query(sql, rowMapper);
         Map<String, List<String>> stationList= new HashMap<>();
@@ -63,9 +63,9 @@ public class RoadDistributionDaoImpl implements RoadDistributionDao, Serializabl
      */
     @Override
     public List<Section> getAllSection() {
-        String sql = "SELECT QJ_ID sectionId, `CZ1_ID` fromId, CZ1_NAME fromName, \n" +
-                "\t`CZ2_ID` toId, CZ2_NAME toName, \n" +
-                "\t`QJ_SXX` direction, QJ_LENGTH weight FROM dic_section";
+        String sql = "SELECT QJ_ID sectionId, CZ1_ID fromId, CZ1_NAME fromName, \n" +
+                "\tCZ2_ID toId, CZ2_NAME toName, \n" +
+                "\tQJ_SXX direction, QJ_LENGTH weight FROM \"SCOTT\".\"dic_section\"";
         RowMapper<Section>rowMapper = new BeanPropertyRowMapper<Section>(Section.class);
         List<Section>sections = jdbcTemplate.query(sql, rowMapper);
         return sections;
@@ -74,7 +74,7 @@ public class RoadDistributionDaoImpl implements RoadDistributionDao, Serializabl
     @Override
     public boolean insertIDOd(List<ODPath> odPaths) {
         final List<ODPath>finalOds = odPaths;
-        String sql = "insert into id_to_all_odPath values(?, ?)";
+        String sql = "insert into \"SCOTT\".\"id_to_all_odPath\" values(?, ?)";
         jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
             @Override
             public void setValues(PreparedStatement preparedStatement, int i) throws SQLException {
@@ -94,7 +94,7 @@ public class RoadDistributionDaoImpl implements RoadDistributionDao, Serializabl
     @Override
     public boolean insertNameOd(List<ODPath> odPaths) {
         final List<ODPath>finalOds = odPaths;
-        String sql = "insert into name_to_all_odPath values(?, ?)";
+        String sql = "insert into \"SCOTT\".\"name_to_all_odPath\" values(?, ?)";
         jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
             @Override
             public void setValues(PreparedStatement preparedStatement, int i) throws SQLException {
@@ -111,7 +111,7 @@ public class RoadDistributionDaoImpl implements RoadDistributionDao, Serializabl
 
     @Override
     public List<ODPathWithJson> getAllODPathById() {
-        String sql = "select od , path pathWithNameAndId from id_to_all_odPath";
+        String sql = "select od , path pathWithNameAndId from \"SCOTT\".\"id_to_all_odPath\"";
         RowMapper<ODPathWithJson> rowMapper = new BeanPropertyRowMapper<>(ODPathWithJson.class);
         List<ODPathWithJson> odPathWithJsons = jdbcTemplate.query(sql, rowMapper);
         return odPathWithJsons;
@@ -119,7 +119,7 @@ public class RoadDistributionDaoImpl implements RoadDistributionDao, Serializabl
 
     @Override
     public List<ODPathWithJson> getAllODPathByName() {
-        String sql = "select od , path pathWithNameAndId from name_to_all_odPath";
+        String sql = "select od , path pathWithNameAndId from \"SCOTT\".\"name_to_all_odPath\"";
         RowMapper<ODPathWithJson> rowMapper = new BeanPropertyRowMapper<>(ODPathWithJson.class);
         List<ODPathWithJson> odPathWithJsons = jdbcTemplate.query(sql, rowMapper);
         return odPathWithJsons;

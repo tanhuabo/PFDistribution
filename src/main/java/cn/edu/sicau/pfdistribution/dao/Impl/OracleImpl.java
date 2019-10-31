@@ -111,20 +111,20 @@ public class OracleImpl implements OracleGetod {
 
     @Override
     public void createKspRegionTable() {
-        jdbcTemplate.update("CREATE TABLE \"SCOTT\".\"test_5_28\" (   \n" +
+        jdbcTemplate.update("CREATE TABLE \"SCOTT\".\"kspregion\" (   \n" +
                 "  \"route\" VARCHAR(500) ,\n" +
                 "  \"passenger\" INT \n" +
                 ")");
     }
 
     @Override
-    public void kspRegionAdd(String route, int passenger) {
-        jdbcTemplate.update("insert into \"SCOTT\".\"test_5_28\"values(?,?)",route,passenger);
+    public void kspRegionAdd(String path, double passenger,String startStation,String endStation) {
+        jdbcTemplate.update("insert into \"SCOTT\".\"kspregion\"values(?,?,?,?)",path,passenger,startStation,endStation);
     }
 
     @Override
     public void deleteAllKspRegion() {
-        jdbcTemplate.update("delete from \"SCOTT\".\"test_5_28\" where 1=1");
+        jdbcTemplate.update("delete from \"SCOTT\".\"kspregion\" where 1=1");
     }
 
     @Override
@@ -144,5 +144,38 @@ public class OracleImpl implements OracleGetod {
         }
         return strings;
     }
+    @Override
+    public Map<String, Integer> odGet123(int hour,int min){//参数传日期和小时，日期格式2018-09-01到2018-09-07，小时从0到23
+        Map map = new HashMap();
+        String sql1=sqlChang(hour,min);
+        List rows= jdbcTemplate.queryForList(sql1);
+        Iterator it = rows.iterator();
+        while(it.hasNext()) {
+            Map userMap = (Map) it.next();
+            String odIn=(String) userMap.get("in_station");
+            String odOut=(String) userMap.get("out_station");
+            //int odPeo = (int) userMap.get("人数");
+            int odPeo = Integer.parseInt(userMap.get("passengers").toString());
+            map.put(odIn+" "+odOut,odPeo);
+        }
+        return map;
+    }
+    public String sqlChang(int time,int min){//附件函数，改sql用，不用管
+        String sqls="SELECT * FROM \"SCOTT\".\"od_03_09\" WHERE \"time\"='"+String.valueOf(time)+"' and \"min\"='"+String.valueOf(min)+"'";
+        return sqls;
+    }
+//记得在接口处声明函数
+    //储存站点得进出站总人数
+    @Override
+    public void savePassengers_table(String data_day,String data_hour,String station,double in_passengers,double out_passengers){
+        jdbcTemplate.update("insert into \"SCOTT\".\"station_passengers_table\" values (?,?,?,?,?)",data_day,data_hour,station,in_passengers,out_passengers);
+    }
+    //储存换乘站点和换乘人数
+    @Override
+    public  void saveTransfer(String data_day,String data_hour,String transfer_station,double transfer_passengers){
+        jdbcTemplate.update("insert into \"SCOTT\".\"transferTable\" values(?,?,?,?)",data_day,data_hour,transfer_station,transfer_passengers);
+    }
+
+
 
 }

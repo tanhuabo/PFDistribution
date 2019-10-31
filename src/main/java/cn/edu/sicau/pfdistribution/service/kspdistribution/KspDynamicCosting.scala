@@ -1,14 +1,14 @@
 package cn.edu.sicau.pfdistribution.service.kspdistribution
 
-import org.springframework.stereotype.Service
-
-import scala.collection.mutable
 import java.io._
 
-import scala.collection.JavaConverters._
 import cn.edu.sicau.pfdistribution.entity.{DirectedEdge, LineIdAndSectionTime, StationAndSectionPassengers}
 import cn.edu.sicau.pfdistribution.service.kspcalculation.Edge
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Service
+
+import scala.collection.JavaConverters._
+import scala.collection.mutable
 
 @Service
 class KspDynamicCosting @Autowired()(val getParameter:GetParameter,val stationAndSectionPassengers:StationAndSectionPassengers,lineIdAndSectionTime:LineIdAndSectionTime)extends Serializable {
@@ -23,7 +23,7 @@ class KspDynamicCosting @Autowired()(val getParameter:GetParameter,val stationAn
     //拥挤度
     var cost: Double = 0
     val mapPassengers:mutable.Map[String, java.util.List[String]]=stationAndSectionPassengers.getSectionP.asScala
-    if(!mapPassengers.isEmpty && stationAndSectionPassengers.getSectionP.containsKey(str)) {
+    if(mapPassengers != null && mapPassengers.contains(str)){
       val mapList: mutable.Buffer[String] = mapPassengers(str).asScala
       val s: String = mapList.head
       val passengers = s.toDouble
@@ -42,7 +42,7 @@ class KspDynamicCosting @Autowired()(val getParameter:GetParameter,val stationAn
 
   def transferFee() : Double = {
     var cost = 5*60 //换乘费用
-    cost= getParameter.transferTime()
+   /* cost= getParameter.transferTime()*/
     return cost
   }
 
@@ -70,11 +70,13 @@ class KspDynamicCosting @Autowired()(val getParameter:GetParameter,val stationAn
     }
     val mapSa:mutable.Map[String, java.util.List[String]]=stationAndSectionPassengers.getStationP.asScala
     val mapSe:mutable.Map[String, java.util.List[String]]=stationAndSectionPassengers.getSectionP.asScala
-    if(!mapSa.isEmpty && !mapSe.isEmpty && stationAndSectionPassengers.getStationP.containsKey(currentSite) && stationAndSectionPassengers.getSectionP.containsKey(currentSite)) {
+    if(mapSa != null && mapSa.contains(currentSite)) {
       val mapSaList: mutable.Buffer[String] = mapSa(currentSite).asScala
-      //val crowded_degree=mapSaList.head
-      val mapSeList: mutable.Buffer[String] = mapSe(currentSite).asScala
       stationPassengers = mapSaList.tail.head.toDouble
+      //val crowded_degree=mapSaList.head
+    }
+    if(mapSe != null && mapSe.contains(currentSite)){
+      val mapSeList: mutable.Buffer[String] = mapSe(currentSite).asScala
       sectionPassengers = mapSeList.tail.head.toDouble
     }
     if(Cl-sectionPassengers/(Fl*t)>= stationPassengers)
@@ -111,7 +113,7 @@ class KspDynamicCosting @Autowired()(val getParameter:GetParameter,val stationAn
         val b=eg3.getToNode
         count += stationOperatingCosts(a,b) + n*transferFee() +perceivedCosts(a,b)
       }
-      DynamicArray += (key -> count)
+      DynamicArray += (key -> count/60)
     }
     return DynamicArray
   }

@@ -1,6 +1,5 @@
 package cn.edu.sicau.pfdistribution.service.netrouter;
 
-
 import NetRouterClient.Address;
 import NetRouterClient.NetRouterClient;
 import NetRouterClient.RecvMessage;
@@ -21,12 +20,13 @@ import org.springframework.stereotype.Service;
 import scala.Tuple2;
 
 import java.io.*;
+import java.net.InetAddress;
 import java.util.*;
 
-/*
-测试用例内容：
-向目的客户端发送的数据，收到回复后发送下一包
-*/
+/*测试用例内容：
+向目的客户端发送的数据，收到回复后发送下一包*/
+
+
 @Component
 @Service
 public class StationAndSectionNetRouter {
@@ -40,46 +40,9 @@ public class StationAndSectionNetRouter {
     private TongHaoReturnResult tongHaoReturnResult;
     @Autowired
     private JsonTransfer jsonTransfer;
-    @Autowired
-    public StationAndSectionPassengers stationAndSectionPassengers;
+    /*@Autowired
+    public StationAndSectionPassengers stationAndSectionPassengers;*/
 
-    public boolean stationDataAnalysis1(JSONObject jsonObject){
-        try {
-            //JSONObject jsonObject = new JSONObject(data);
-            //        String record_time = jsonObject.optString("RecordTime");
-            JSONArray station_loads = jsonObject.getJSONArray("StationLoads");
-            JSONArray Section_loads = jsonObject.getJSONArray("SectionLoads");
-            Map<String, List<String>> stationP = new HashMap<>();
-            Map<String, List<String>> sectionP = new HashMap<>();
-            for (int i = 0; i < station_loads.length(); i++) {
-                List<String> stationPassengers = new ArrayList<>();
-                String str = station_loads.getString(i);
-                JSONObject s = new JSONObject(str);
-                //            stationPassengers.add(s.getString("stationid"));
-                stationPassengers.add(s.getString("CrowdingRate"));
-                stationPassengers.add(s.getString("Passengers"));
-                stationPassengers.add(s.getString("AvgVolume"));
-                stationPassengers.add(s.getString("OutVolume"));
-                stationPassengers.add(s.getString("InVolume"));
-                stationP.put(s.getString("StationId"), stationPassengers);
-            }
-            for (int i = 0; i < Section_loads.length(); i++) {
-                List<String> sectionPassengers = new ArrayList<>();
-                String str = Section_loads.getString(i);
-                JSONObject s = new JSONObject(str);
-                s.getString("TrainNum");//列车数目
-                sectionPassengers.add(s.getString("UtilizationRate"));
-                sectionPassengers.add(s.getString("Passengers"));
-                sectionPassengers.add(s.getString("Volume"));
-                sectionP.put(s.getString("StartId") + " " + s.getString("EndId"), sectionPassengers);
-            }
-            stationAndSectionPassengers.setStationP(stationP);
-            stationAndSectionPassengers.setSectionP(sectionP);
-            return true;
-        }catch (Exception e){
-            return false;
-        }
-    }
     private static void loadJNILibDynamically(String libName) throws IOException {// synchronized static
 
         String systemType = System.getProperty("os.name");
@@ -124,9 +87,9 @@ public class StationAndSectionNetRouter {
     }
 
 
-    private boolean SendData(NetRouterClient netClient, List<Address> f_list, ArrayList<cn.edu.sicau.pfdistribution.entity.TongHaoPathType> data) {
+    private boolean SendData(NetRouterClient netClient, List<Address> f_list, String data) {
 //        gson.toJson(data)
-        SendMessage f_msg = new SendMessage(f_list, gson.toJson(data));
+        SendMessage f_msg = new SendMessage(f_list, data);
         if (!netClient.sendMessage(f_msg)) {
             log.info("Send fail");
             return false;
@@ -154,7 +117,7 @@ public class StationAndSectionNetRouter {
         Address destaddr1 = new Address((byte) 8, (byte) 1, (short) 4, (byte) 1, (short) 6);
         destAddrs.add(destaddr1);
 //注册信息
-/*        String reginfo =
+        String reginfo =
                 "<in_condition>\n"+
                         "<rec>\n"+
                         "<protocol418_condition>\n"+
@@ -162,9 +125,10 @@ public class StationAndSectionNetRouter {
                         "<type_func>0x04,0x09</type_func>\n"+
                         "</protocol418_condition>\n"+
                         "</rec>\n"+
-                        "</in_condition>\n";*/
+                        "</in_condition>\n";
+        String ip= InetAddress.getLocalHost().getHostAddress();
 
-        NetRouterClient netRouterClient = new NetRouterClient("Test", "10.2.55.70", 9003, "192.168.69.108", 9005, localaddr, "");
+        NetRouterClient netRouterClient = new NetRouterClient("Test", "10.11.26.14", 9003, ip, 9005, localaddr, "");
         while (!netRouterClient.start()) {
             log.info("StationAndSectionNetRouter  Start fails.");
             Thread.sleep(10);
@@ -178,32 +142,34 @@ public class StationAndSectionNetRouter {
                 if (netRouterClient.receiveBlockMessage(recvMessage)) {
                     String a = recvMessage.getMessage();
                     if (recvMessage != null) {
+                        Boolean deal = false;
+                        String data = a.substring(2);
+                        String b = "od update";
                         try{
-                            String data = a.substring(2);
+
                             JSONObject json = new JSONObject(data);
                             //Boolean data = jsonTransfer.stationDataAnalysis(a);
-                            Boolean deal = stationDataAnalysis1(json);
-                            if(deal != false) {
-                                Map<String, String> message = new HashMap<>();
-                                message.put("command", "dynamic");
-                                message.put("predictionInterval", "15");
-                                final List<Tuple2<String, String>> list = new ArrayList<>(message.size());
-                                for (final Map.Entry<String, String> entry : message.entrySet()) {
-                                    list.add(Tuple2.apply(entry.getKey(), entry.getValue()));
-                                }
-                                final scala.collection.Seq<Tuple2<String, String>> seq = scala.collection.JavaConverters.asScalaBufferConverter(list).asScala().toSeq();
-                                scala.collection.immutable.Map<String, String> abc = (scala.collection.immutable.Map<String, String>) scala.collection.immutable.Map$.MODULE$.apply(seq);
-
-                                String back = "{'time':'2019/5/30 15:54:00','staion_distribution':[{'path':'三亚湾-2-民心佳园-2-重庆北站北广场-2-重庆北站南广场-o-重庆北站南广场-2-龙头寺公园-2-红土地','passengers':'2'},{'path':'空港广场-2-双凤桥-2-碧津-2-双龙-2-回兴-2-长福路-2-翠云-2-园博园-2-鸳鸯-2-金童路-2-金渝','passengers':'5'}]}";
-                                distribution.triggerTask(abc);
-                                System.out.println(tongHaoReturnResult.getPathDistribution().size());
-                                SendData1(netRouterClient, destAddrs,tongHaoReturnResult);
-                                log.info("StationAndSectionNetRouter数据处理成功" );
-                            }else {
-                                log.info("StationAndSectionNetRouter数据不对应" );
-                            }
+                            deal = jsonTransfer.stationDataAnalysis(json);
                         }catch (Exception e){
-                            log.info("StationAndSectionNetRouter数据不对应" );
+                            log.info("StationAndSectionNetRouter数据不对应");
+                        }
+                        if(a.equals(b)) {
+                            Map<String, String> message = new HashMap<>();
+                            message.put("command", "dynamic");
+                            message.put("predictionInterval", "15");
+                            final List<Tuple2<String, String>> list = new ArrayList<>(message.size());
+                            for (final Map.Entry<String, String> entry : message.entrySet()) {
+                                list.add(Tuple2.apply(entry.getKey(), entry.getValue()));
+                            }
+                            final scala.collection.Seq<Tuple2<String, String>> seq = scala.collection.JavaConverters.asScalaBufferConverter(list).asScala().toSeq();
+                            scala.collection.immutable.Map<String, String> abc = (scala.collection.immutable.Map<String, String>) scala.collection.immutable.Map$.MODULE$.apply(seq);
+
+                            String back = "{'time':'2019/5/30 15:54:00','staion_distribution':[{'path':'三亚湾-2-民心佳园-2-重庆北站北广场-2-重庆北站南广场-o-重庆北站南广场-2-龙头寺公园-2-红土地','passengers':'2'},{'path':'空港广场-2-双凤桥-2-碧津-2-双龙-2-回兴-2-长福路-2-翠云-2-园博园-2-鸳鸯-2-金童路-2-金渝','passengers':'5'}]}";
+                            distribution.triggerTask(abc);
+                            System.out.println(tongHaoReturnResult.getPathDistribution().size());
+                            /*SendData1(netRouterClient, destAddrs,tongHaoReturnResult);*/
+                            SendData(netRouterClient, destAddrs,"path update");
+                            log.info("成功" );
                         }
                     }
                 }

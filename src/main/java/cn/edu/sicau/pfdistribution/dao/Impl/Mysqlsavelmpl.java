@@ -12,33 +12,33 @@ import java.util.*;
 public class  Mysqlsavelmpl implements RegionSaveInterface {
 
     @Autowired
-    @Qualifier("mysqlJdbcTemplate")
+    @Qualifier("oracleJdbcTemplate")
     private JdbcTemplate jdbcTemplate;
     @Override
     public void routeAdd(String ksp) {
-        jdbcTemplate.update("insert into ksproute(ksp) values(?)",ksp);
+        jdbcTemplate.update("insert into \"SCOTT\".\"ksproute(ksp)\" values(?)",ksp);
     }
 
 
     @Override
     public void kspRegionAdd(String route, double passenger) {
-        jdbcTemplate.update("insert into kspregion(route,passenger) values(?,?)",route,passenger);
+        jdbcTemplate.update("insert into \"SCOTT\".\"kspregion(route,passenger)\" values(?,?)",route,passenger);
     }
 
     @Override
-    public void odRegion(String kspregion, double passenger,String time_day,String time_hour) {
-        jdbcTemplate.update("insert into odregion(kspregion,passenger,time_day,time_hour) values(?,?,?,?)",kspregion,passenger,time_day,time_hour);
+    public void odRegion(String date_day,String date_hour,String section_in,String section_out, double passengers) {
+        jdbcTemplate.update("insert into \"SCOTT\".\"odregion\" values(?,?,?,?,?)",date_day,date_hour,section_in,section_out,passengers);
     }
     @Override
     public Map<Integer, Integer> selectLineId(){
         Map LineId = new HashMap();
         List rows= jdbcTemplate.queryForList("SELECT LINE_ID,CZ_ID\n" +
-                "from dic_linestation");
+                "from \"SCOTT\".\"dic_linestation\"");
         Iterator it = rows.iterator();
         while(it.hasNext()) {
             Map userMap = (Map) it.next();
-            Integer careID = (Integer) userMap.get("CZ_ID");
-            Integer lineID = (Integer) userMap.get("LINE_ID");
+            Integer careID = Integer.parseInt(userMap.get("CZ_ID").toString());
+            Integer lineID = Integer.parseInt(userMap.get("LINE_ID").toString());
             LineId.put(careID,lineID);
         }
         return LineId;
@@ -47,11 +47,11 @@ public class  Mysqlsavelmpl implements RegionSaveInterface {
     public Map<Integer,Integer> select_CQ_LineId(){
         Map CQ_LineId = new HashMap();
         List rows= jdbcTemplate.queryForList("SELECT STATIONID,LINENAME\n" +
-                "FROM chongqing_stations_nm");
+                "FROM \"SCOTT\".\"chongqing_stations_nm\"");
         Iterator it = rows.iterator();
         while(it.hasNext()) {
             Map userMap = (Map) it.next();
-            Integer careID = (Integer) userMap.get("STATIONID");
+            Integer careID = Integer.parseInt(userMap.get("STATIONID").toString());
             String lineName = (String) userMap.get("LINENAME");
             CQ_LineId.put(careID,lineName);
         }
@@ -61,14 +61,14 @@ public class  Mysqlsavelmpl implements RegionSaveInterface {
     public Map<String,Integer> get_CQ_od(String day,String hour){
         Map CQ_od = new HashMap();
         List rows= jdbcTemplate.queryForList("SELECT GETIN_STATION,GETOUT_STATION,VOLUME\n" +
-                "FROM chongqinod\n" +
+                "FROM \"SCOTT\".\"chongqinod\"\n" +
                 "WHERE GETIN_DAY='"+day+"' AND GETIN_60MIN='"+hour+"'");
         Iterator it = rows.iterator();
         while(it.hasNext()) {
             Map userMap = (Map) it.next();
             String getInStation = (String) userMap.get("GETIN_STATION");
             String getOutStation= (String) userMap.get("GETOUT_STATION");
-            int passengers= (int) userMap.get("VOLUME");
+            int passengers= Integer.parseInt(userMap.get("VOLUME").toString());
             CQ_od.put(getInStation+" "+getOutStation,passengers);
         }
         return CQ_od;
@@ -76,7 +76,7 @@ public class  Mysqlsavelmpl implements RegionSaveInterface {
     @Override
     public String selectStationName(Integer id){
         Map stationNameMap=jdbcTemplate.queryForMap("SELECT LINE_NAME\n" +
-                "from dic_linestation\n" +
+                "from \"SCOTT\".\"dic_linestation\"\n" +
                 "WHERE CZ_ID="+id+"");
         String stationName= (String) stationNameMap.get("LINE_NAME");
         return stationName;
@@ -85,11 +85,11 @@ public class  Mysqlsavelmpl implements RegionSaveInterface {
     public Map<Integer,List<String>> selectTime(){
         Map idTime = new HashMap();
         List rows= jdbcTemplate.queryForList("SELECT CZ_ID,ARR_TIME,DEP_TIME\n" +
-                "from base_khsk");
+                "from \"SCOTT\".\"base_khsk\"");
         Iterator it = rows.iterator();
         while(it.hasNext()) {
             Map userMap = (Map) it.next();
-            Integer CZ_ID = (int) userMap.get("CZ_ID");
+            Integer CZ_ID = Integer.parseInt(userMap.get("CZ_ID").toString());
             String ARR_TIME= (String) userMap.get("ARR_TIME");
             String ARR_TIME1=ARR_TIME.replace(" ", "");
             String DEP_TIME= (String) userMap.get("DEP_TIME");
@@ -104,21 +104,22 @@ public class  Mysqlsavelmpl implements RegionSaveInterface {
         Map nameToID = new HashMap();
         List<Integer> idList=new ArrayList<>();
         List rows= jdbcTemplate.queryForList("SELECT CZ_ID\n" +
-                "FROM dic_linestation\n" +
+                "FROM \"SCOTT\".\"dic_linestation\"\n" +
                 "WHERE CZ_NAME='"+Name+"'");
         Iterator it = rows.iterator();
         while(it.hasNext()) {
             Map userMap = (Map) it.next();
-            Integer CZ_ID = (Integer) userMap.get("CZ_ID");
+            Integer CZ_ID = Integer.parseInt(userMap.get("CZ_ID").toString());
             idList.add(CZ_ID);
         }
         nameToID.put(Name,idList);
         return nameToID;
     }
+    @Override
     public Map<String,String> SelectAvgTime(){
         Map peoMap = new HashMap();
         List rows= jdbcTemplate.queryForList("SELECT GETIN_STATION,GETOUT_STATION,AVGTIME\n" +
-                "FROM chongqinod\n" +
+                "FROM \"SCOTT\".\"chongqinod\"\n" +
                 "WHERE GETIN_DAY='20180905'");
         Iterator it = rows.iterator();
         while(it.hasNext()) {
@@ -129,19 +130,36 @@ public class  Mysqlsavelmpl implements RegionSaveInterface {
             peoMap.put(in+" "+out,time);
         }
         return peoMap;
-    } public Map<String,Integer> SelectAvgPeo(){
+
+    }
+    @Override
+    public Map<String,Integer> SelectAvgPeo(){
         Map timeMap = new HashMap();
         List rows= jdbcTemplate.queryForList("SELECT GETIN_STATION,GETOUT_STATION,VOLUME\n" +
-                "FROM chongqinod\n" +
+                "FROM \"SCOTT\".\"chongqinod\"\n" +
                 "WHERE GETIN_DAY='20180905'");
         Iterator it = rows.iterator();
         while(it.hasNext()) {
             Map userMap = (Map) it.next();
             String in= (String) userMap.get("GETIN_STATION");
             String out= (String) userMap.get("GETOUT_STATION");
-            Integer pessengers = (Integer) userMap.get("VOLUME");
+            Integer pessengers = Integer.parseInt(userMap.get("VOLUME").toString());
             timeMap.put(in+" "+out,pessengers);
         }
         return timeMap;
+    }
+    @Override
+    public List<String> idGet(){
+        List<String> idList1=new ArrayList<>();
+        List rows= jdbcTemplate.queryForList("SELECT CZ_ID\n" +
+                "FROM dic_station");
+        Iterator it = rows.iterator();
+        while(it.hasNext()) {
+            Map userMap = (Map) it.next();
+            Integer id= Integer.parseInt(userMap.get("CZ_ID").toString());
+            String ID=id.toString();
+            idList1.add(ID);
+        }
+        return idList1;
     }
 }

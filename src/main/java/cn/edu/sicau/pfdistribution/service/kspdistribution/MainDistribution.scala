@@ -3,7 +3,7 @@ package cn.edu.sicau.pfdistribution.service.kspdistribution
 import java.io._
 import java.util
 
-import cn.edu.sicau.pfdistribution.MysqlGetID
+import cn.edu.sicau.pfdistribution.{Constants, MysqlGetID}
 import cn.edu.sicau.pfdistribution.entity._
 import cn.edu.sicau.pfdistribution.service.kspcalculation.Edge
 import cn.edu.sicau.pfdistribution.service.road.KServiceImpl
@@ -19,7 +19,7 @@ import scala.collection.mutable
 @Service
 case class MainDistribution @Autowired() (calBase:CalculateBaseInterface,getOdList: GetOdList,getParameter: GetParameter,kServiceImpl:KServiceImpl,dataDeal: DataDeal,tongHaoReturnResult: TongHaoReturnResult,getLineID:GetLineID,mysqlGetID: MysqlGetID
 
-)extends Serializable { //,val getOdList: GetOdList
+,lineIdAndSectionTime:LineIdAndSectionTime)extends Serializable { //,val getOdList: GetOdList
 
   @transient
   val conf = new SparkConf().setAppName("PfAllocationApp").setMaster("local[*]")
@@ -30,19 +30,23 @@ case class MainDistribution @Autowired() (calBase:CalculateBaseInterface,getOdLi
    *intervalTriggerTask方法用于返回静态和动态的区间分配结果
    * args（需要传入的执行命令Map）eg：Map("command", command；"startTime", startTime;"timeInterval", timeInterval;"predictionInterval", predictionInterval)
    * return  ava.util.Map（section->passengers）
+   * 交大使用
    */
-  val dayT = "20190901"
-  val hourT = "6"
   def intervalTriggerTask(args: Map[String,String]): java.util.Map[String, String]= {
     getLineID.setCZ_ID()
     val command:String = args("command")
     val time  = args("timeInterval")
-    //从数据库获得AFC历史数据
+    /*//从数据库获得AFC历史数据
     val odMapObtain:mutable.Map[String,Integer] = mysqlGetID.test_CQ_od(dayT,hourT).asScala
+    val odMap = odMapTransferScala(odMapObtain)*/
+
+    //重庆样例数据处理
+    val odMapObtain:mutable.Map[String,Integer] =getOdList.odGet(Constants.DATA_DATE_HOUR,Constants.DATA_DATE_MIN).asScala
     val odMap = odMapTransferScala(odMapObtain)
+    println("日期："+Constants.DATA_DATE_HOUR+Constants.DATA_DATE_MIN)
     println("OD条数"+odMap.keys.size)
     if(command.equals("static")){
-      return mapTransfer(intervalResultTest(odMap,dayT.toString,hourT.toString)).asJava
+      return mapTransfer(intervalResult(odMap)).asJava
     }else
       return mapTransfer(intervalResultWithTimeResult(odMap,time.toInt)).asJava
   }
@@ -50,6 +54,7 @@ case class MainDistribution @Autowired() (calBase:CalculateBaseInterface,getOdLi
    *intervalTriggerTask方法用于返回静态和动态的区间分配结果
    * args（默认执行命令Map）eg：Map("command", dynamic；;"predictionInterval", predictionInterval)
    * return  util.ArrayList[path->passengers]
+   * 通号使用
    */
   def triggerTask(args: Map[String,String]):Unit= {
     getLineID.setCZ_ID()
@@ -58,6 +63,9 @@ case class MainDistribution @Autowired() (calBase:CalculateBaseInterface,getOdLi
     //从数据库获得需要计算的OD矩阵
     val od:scala.collection.mutable.Buffer[String] = getOdList.odFromOracleToList().asScala
     val odList:List[String] = od.toList
+    /*val od:scala.collection.mutable.Buffer[String] = getOdList.testOdList().asScala
+    val odList:List[String] = od.toList
+    val odMap = test(odList)*/
     //将OD的列表转换为Map
     val odMap = odListToOdMap(odList)
     println("OD条数"+odMap.keys.size)
@@ -70,6 +78,18 @@ case class MainDistribution @Autowired() (calBase:CalculateBaseInterface,getOdLi
       tongHaoKspStaticDistributionResult(odMap)
     }else
       tongHaoKspDynamicDistributionResult(odMap)
+  }
+  def test(ID:List[String]):mutable.Map[String, String]={
+    var transfer:mutable.Map[String, String] = mutable.Map()
+    val id:Array[String] = ID.toArray
+    for(i<-id){
+      for(j<-id){
+        val str = i + " " + j
+        if(!i.equals(j))
+          transfer += (str -> "1000")
+      }
+    }
+    return transfer
   }
   //各个OD的路径分配结果
   def kspDistributionResult(allKsp:mutable.Map[String, util.List[DirectedPath]],odMap:mutable.Map[String,Integer]):mutable.Map[Array[DirectedEdge], Double] = {
@@ -102,28 +122,21 @@ case class MainDistribution @Autowired() (calBase:CalculateBaseInterface,getOdLi
   }
 
   //返回区间断面的分配结果（静态）
-  def intervalResult(allKsp:mutable.Map[String, util.List[DirectedPath]],odMap:mutable.Map[String,Integer]):mutable.Map[String, Double] = {
-    val odList:List[String] = allKsp.keySet.toList
+  def intervalResult(odMap:mutable.Map[String,Integer]):mutable.Map[String, Double] = {
+    val odList:List[String] = odMap.keySet.toList
     val rdd = sc.makeRDD(odList)
-    val odDistributionRdd = rdd.map(String => calBase.odDistributionResult(String,allKsp,odMap))   //各个OD的分配结果
+    val odDistributionRdd = rdd.map(String => calBase.odDistributionResultTest(String,odMap))   //各个OD的分配结果
     val rddIntegration = odDistributionRdd.reduce((x, y) => x ++ y)      //对OD分配结果的RDD的整合
     println("ksp"+rddIntegration.keys.size)
+    val dataListStation = calBase.stationInAndOutP(rddIntegration)
+    val transferMap = calBase.transferPassengers(rddIntegration) //换乘点及换乘人数
     val regionMap = calBase.odRegion(rddIntegration) //各个区间的加和结果
     println("section:"+regionMap.keys.size)
-    displayResult(regionMap)
+    //displayResult(regionMap)
+    dataDeal.stationInAndOut(dataListStation)
+    dataDeal.saveTransferPassengers(transferMap)
+    dataDeal.sectionDataSave(regionMap)
     return regionMap
-  }
-  def intervalResultTest(odMap:mutable.Map[String,Integer],dayT:String,hourT:String):mutable.Map[String, Double] = {
-    val odList:List[String] = odMap.keySet.toList
-      val rdd = sc.makeRDD(odList)
-      val odDistributionRdd = rdd.map(String => calBase.odDistributionResultTest(String,odMap))   //各个OD的分配结果
-      val rddIntegration = odDistributionRdd.reduce((x, y) => x ++ y)      //对OD分配结果的RDD的整合
-      println("ksp"+rddIntegration.keys.size)
-      val regionMap = calBase.odRegion(rddIntegration) //各个区间的加和结果
-      println("section:"+regionMap.keys.size)
-      //displayResult(regionMap)
-      dataDeal.sectionDataSave(regionMap,dayT,hourT)
-      return regionMap
   }
 
   //按照不同的时间粒度分配形，生成区间密度(动态)
@@ -141,10 +154,10 @@ case class MainDistribution @Autowired() (calBase:CalculateBaseInterface,getOdLi
   //rest接口调用
   def getDistribution(od:String):Object = {
     getLineID.setCZ_ID()
-    val data1:mutable.Map[Array[DirectedEdge], Double] = calBase.staticOdPathSearch(od)
+    //val data1:mutable.Map[Array[DirectedEdge], Double] = calBase.staticOdPathSearch(od)
     val data2:mutable.Map[Array[DirectedEdge], Double] = calBase.dynamicOdPathSearch(od)
     var result: Map[String, Double] = Map()
-    val minPathMap1:Array[DirectedEdge]=minWeightPath(data1)
+    val minPathMap1:Array[DirectedEdge]=totalTransfer(data2)
     val minPathMap2:Array[DirectedEdge]=minWeightPath(data2)
     val minDataArray:Array[Array[DirectedEdge]] = Array(minPathMap1,minPathMap2)
     for(i <- 0 to (minDataArray.length -1)) {
@@ -160,8 +173,8 @@ case class MainDistribution @Autowired() (calBase:CalculateBaseInterface,getOdLi
       val dEdge2: DirectedEdge = minPath(minPath.length - 1)
       val eg2: Edge = dEdge2.getEdge
       str = str + "," + eg2.getToNode
-      if(i==0)
-        result += (str -> data1(minPath))
+      result += (str -> data2(minPath))
+
     }
     return result.map{case(k,v)=>(k,v)}.asJava
   }
@@ -173,18 +186,38 @@ case class MainDistribution @Autowired() (calBase:CalculateBaseInterface,getOdLi
  }
   //筛选出所有路径中权值和最小的路径
   def minWeightPath(data:mutable.Map[Array[DirectedEdge], Double]):Array[DirectedEdge]={
+    //费用最短路径
     var result:mutable.Map[Array[DirectedEdge],Double] = mutable.Map()
-    var minPathWeight:Double = data.values.head
+    val minPath:Double = data.values.min
     for(key <- data.keys){
-      result += (key -> data(key))
-      if(data(key)<minPathWeight){
-        minPathWeight = data(key)
-        if(result.isEmpty)
-          result += (key -> data(key))
-        else {
-          result.clear()
-          result += (key -> data(key))
-        }
+     if(data(key)==minPath)
+       result.clear()
+       result += (key -> minPath)
+    }
+    return result.keys.head
+  }
+  //换乘最少路径
+  def totalTransfer(data:mutable.Map[Array[DirectedEdge], Double]):Array[DirectedEdge]={
+    var result:mutable.Map[Array[DirectedEdge],Double] = mutable.Map()
+    val CZMap:mutable.Map[Integer, Integer]=lineIdAndSectionTime.getStationIdToLineId.asScala
+    var totalTransfer = 10000
+    for (key <- data.keys) {
+      var n: Int = 1
+      //判断路径有无换乘和换乘次数
+      for (i <- 0 to (key.length - 2)) {
+        val dEdge1: DirectedEdge = key(i)
+        val eg1: Edge = dEdge1.getEdge
+        val dEdge2: DirectedEdge = key(i + 1)
+        val eg2: Edge = dEdge2.getEdge
+        val a = eg1.getFromNode
+        val b = eg2.getToNode
+        if (CZMap(a.toInt) != CZMap(b.toInt))
+          n = n + 1
+      }
+      if (n < totalTransfer) {
+        result.clear()
+        totalTransfer = n
+        result += (key -> totalTransfer)
       }
     }
     return result.keys.head
@@ -196,20 +229,54 @@ case class MainDistribution @Autowired() (calBase:CalculateBaseInterface,getOdLi
     for (i <- rddIntegration.keys)
       len = len + 1
     val kspArray: util.ArrayList[TongHaoPathType] = new util.ArrayList()
+    getOdList.deleteAllKspRegion()
     for (key <- rddIntegration.keys) {
       var ksp:TongHaoPathType = new TongHaoPathType()
       val dEdge: DirectedEdge = key(0)
       val edge: Edge = dEdge.getEdge
-      var forMatedPath = edge.getFromNode +"-"+ dEdge.getDirection +"-"+ edge.getToNode
+      val startStation:String = edge.getFromNode
+      var endStation:String = null
+      ksp.setStartStation(startStation)
+      var Direction = dEdge.getDirection
+      if(Direction == "1"){
+        Direction = Constants.DIRECTION_1
+      }else if(Direction == "2"){
+        Direction = Constants.DIRECTION_2
+      }else{
+        Direction ="o"
+      }
+      var forMatedPath = startStation +"-"+ Direction +"-"+ edge.getToNode
       for (i <- 1 to (key.length - 1)) {
         val dEdg: DirectedEdge = key(i)
         val eg: Edge = dEdg.getEdge
-        forMatedPath = forMatedPath + "-"+dEdg.getDirection +"-"+ eg.getToNode
+        Direction = dEdg.getDirection
+        if(Direction == "1"){
+          Direction = Constants.DIRECTION_1
+        }else if(Direction == "2"){
+          Direction = Constants.DIRECTION_2
+        }else{
+          Direction ="o"
+        }
+        forMatedPath = forMatedPath + "-"+Direction +"-"+ eg.getToNode
+        if(i==key.length-1){
+          endStation = eg.getToNode
+          ksp.setEndStation(endStation)
+        }
       }
-      val P:Int = rddIntegration(key).toInt
-      ksp.setPath(forMatedPath)
-      ksp.setPassengers(P.toString)
-      kspArray.add(ksp)
+      if(rddIntegration(key) != -1) {
+        var P:Float = 0
+        P = rddIntegration(key).toFloat
+        /*if( P == Double.NaN)
+          P = 0*/
+        /*var P: Int = rddIntegration(key).toInt
+        if(P == 0){
+          P = 1
+        }*/
+        ksp.setPath(forMatedPath)
+        ksp.setPassengers(P.toString)
+        dataDeal.tongHaoKspDataSave(forMatedPath,P,startStation,endStation)
+        kspArray.add(ksp)
+      }
     }
     tongHaoReturnResult.setPathDistribution(kspArray)
   }

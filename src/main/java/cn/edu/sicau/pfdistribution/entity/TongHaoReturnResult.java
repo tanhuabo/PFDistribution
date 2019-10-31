@@ -1,12 +1,12 @@
 package cn.edu.sicau.pfdistribution.entity;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.text.SimpleDateFormat;
+
 @Service
 public class TongHaoReturnResult implements Serializable {
     private String dataTime;

@@ -15,11 +15,11 @@ import java.util.Map;
 public class OracleGetTransferStationsImpl implements OracleGetTransferStations {
 
     @Autowired
-    @Qualifier("mysqlJdbcTemplate")
+    @Qualifier("oracleJdbcTemplate")
     private JdbcTemplate jdbcTemplate;
-    public String getLineListSql="select * from dic_linestation where CZ_NAME=";
-    public String getSection1ListSql="SELECT * FROM dic_linesection WHERE CZ1_NAME=";
-    public String getSection2ListSql="SELECT * FROM dic_linesection WHERE CZ2_NAME=";
+    public String getLineListSql="select * from \"SCOTT\".\"dic_linestation\" where CZ_NAME=";
+    public String getSection1ListSql="SELECT * FROM \"SCOTT\".\"dic_linesection\" WHERE CZ1_NAME=";
+    public String getSection2ListSql="SELECT * FROM \"SCOTT\".\"dic_linesection\" WHERE CZ2_NAME=";
 
     @Override
     public List<List<String>> getTransferStations(List<String> odStations) {
@@ -31,7 +31,7 @@ public class OracleGetTransferStationsImpl implements OracleGetTransferStations 
         Iterator preit = pre.iterator();
         while(preit.hasNext()) {
             Map LineMap = (Map) preit.next();
-            Integer line_id = (int) LineMap.get("LINE_ID");
+            Integer line_id = Integer.parseInt(LineMap.get("LINE_ID").toString());
             preLines.add(line_id);
         }
         List mid=jdbcTemplate.queryForList(getLineListSql+"'"+odStations.get(1)+"'");
@@ -39,7 +39,7 @@ public class OracleGetTransferStationsImpl implements OracleGetTransferStations 
         Iterator midit = mid.iterator();
         while(midit.hasNext()) {
             Map LineMap = (Map) midit.next();
-            Integer line_id = (int) LineMap.get("LINE_ID");
+            Integer line_id = Integer.parseInt(LineMap.get("LINE_ID").toString());
             midLines.add(line_id);
         }
         //确定前一个站所属线路
@@ -88,7 +88,7 @@ public class OracleGetTransferStationsImpl implements OracleGetTransferStations 
             Iterator rearit = rear.iterator();
             while(rearit.hasNext()) {
                 Map LineMap = (Map) rearit.next();
-                Integer line_id = (int) LineMap.get("LINE_ID");
+                Integer line_id = Integer.parseInt(LineMap.get("LINE_ID").toString());
                 rearLines.add(line_id);
             }
             //判断当前站点是否是换乘点

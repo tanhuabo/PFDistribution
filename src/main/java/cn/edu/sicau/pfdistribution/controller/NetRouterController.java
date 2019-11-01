@@ -1,5 +1,6 @@
-package cn.edu.sicau.pfdistribution.service.netrouter;
+package cn.edu.sicau.pfdistribution.controller;
 
+import cn.edu.sicau.pfdistribution.service.netrouter.IntervalDistributionNetRouter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -8,8 +9,8 @@ import javax.annotation.PostConstruct;
 @Component
 public class NetRouterController {
 
-    @Autowired
-    private IntervalDistributionNetRouter intervalDistributionNetRouter;
+    /*@Autowired
+    private IntervalDistributionNetRouter intervalDistributionNetRouter;*/
 
     /*@Autowired
     private RiskLevelNetRouter riskLevelNetRouter;
@@ -17,7 +18,7 @@ public class NetRouterController {
     private StationAndSectionNetRouter stationAndSectionNetRouter;*/
     @PostConstruct
     public void StartAllNetRouter() throws Exception {
-        intervalDistributionNetRouter.receiver();
+        /*intervalDistributionNetRouter.receiver();*/
         /*riskLevelNetRouter.receiver();
         stationAndSectionNetRouter.receiver();*/
     }

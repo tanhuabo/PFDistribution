@@ -1,11 +1,10 @@
-package cn.edu.sicau.pfdistribution.dao.mysqlsave;
+package cn.edu.sicau.pfdistribution.dao.sqlmpl;
 
 import cn.edu.sicau.pfdistribution.entity.ODPath;
 import cn.edu.sicau.pfdistribution.entity.ODPathWithJson;
 import cn.edu.sicau.pfdistribution.entity.Section;
 import org.springframework.stereotype.Repository;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 

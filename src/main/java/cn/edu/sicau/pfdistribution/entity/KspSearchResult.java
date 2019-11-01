@@ -2,6 +2,9 @@ package cn.edu.sicau.pfdistribution.entity;
 
 import java.util.List;
 
+/**
+ * 定义搜索到的路径的返回类型
+ */
 public class KspSearchResult {
     private String type;
     private List<String> stationList;

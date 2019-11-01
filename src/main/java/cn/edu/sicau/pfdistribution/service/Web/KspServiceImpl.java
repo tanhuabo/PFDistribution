@@ -21,13 +21,13 @@ public class KspServiceImpl implements KspService {
     @Override
     public List<KspSearchResult> findKsp(SWJTU_DTO swjtu_dto) {
 
-        List<KspSearchResult> kspSearchResults = new ArrayList<KspSearchResult>();
+        List<KspSearchResult> kspSearchResults = new ArrayList<>();
         Map map = (Map) mainDistribution.getDistribution(swjtu_dto.getStartStation()+" "+swjtu_dto.getEndStation());
 //        Map<String,Integer> map=new HashMap<>();
 //        map.put("海峡路,南湖,四公里,南坪,南滨路,七星岗,两路口,牛角沱",0);
         Iterator it=map.keySet().iterator();
         for(int i=1;it.hasNext();i++){
-            List<String> odstations=new ArrayList<String>();
+            List<String> odstations;
             String odstation=it.next().toString();
             odstations=Arrays.asList(odstation.split(","));
             List<List<String>> transferstations=oracleGetTransferStationsById.getTransferStations(odstations);

@@ -4,6 +4,12 @@ import cn.edu.sicau.pfdistribution.entity.KspSearchResult;
 
 import java.util.List;
 
+/**
+ * @param status状态码
+ * @param msg消息状态
+ * @param data数据body
+ * 定义返回的josn数据的格式
+ */
 public class ResultMsg {
     private int status;
     private String msg;

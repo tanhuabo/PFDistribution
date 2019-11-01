@@ -1,4 +1,4 @@
-package cn.edu.sicau.pfdistribution.dao.mysqlsave;
+package cn.edu.sicau.pfdistribution.dao.sqlmpl;
 import lombok.Data;
 
 @Data

@@ -11,6 +11,9 @@ trait CalculateBaseInterface {
   //计算单个OD的k路径搜索结果
   def staticOdPathSearch(targetOd: String):mutable.Map[Array[DirectedEdge], Double]
 
+  /*
+  * 路劲搜索
+  * */
   def dynamicOdPathSearch(targetOd: String):mutable.Map[Array[DirectedEdge], Double]
 
   //计算单个OD对的OD分配结果

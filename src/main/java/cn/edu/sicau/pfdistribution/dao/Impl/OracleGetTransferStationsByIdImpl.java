@@ -16,6 +16,9 @@ public class OracleGetTransferStationsByIdImpl implements OracleGetTransferStati
     @Autowired
     @Qualifier("oracleJdbcTemplate")
     private JdbcTemplate jdbcTemplate;
+    /**
+     * 在数据库中查询线路中站点的站名
+     */
     private String getLineSql="select * from \"SCOTT\".\"dic_linestation\" where CZ_ID=";
 
     @Override
@@ -76,7 +79,7 @@ public class OracleGetTransferStationsByIdImpl implements OracleGetTransferStati
                 else {
                     transferStationsList.add(Cz_name);
                     //获得当前站点所在线路
-                    String lineName = selectStationName(Integer.parseInt(odStations.get(i)));
+                    String lineName = selectLineName(Integer.parseInt(odStations.get(i)));
                     transferStationsList.add(lineName);
                 }
             }
@@ -91,6 +94,12 @@ public class OracleGetTransferStationsByIdImpl implements OracleGetTransferStati
         return TransferResult;
     }
 
+
+    /**
+     * 查询站点id所对应的站名
+     * @param odStations一条路径所经过的所有站点的id
+     * @return
+     */
     @Override
     public List<String> getStationsById(List<String> odStations) {
         List<String> stations=new ArrayList<>();
@@ -101,7 +110,9 @@ public class OracleGetTransferStationsByIdImpl implements OracleGetTransferStati
             Map czMap = (Map) czit.next();
             Cz_name = (String) czMap.get("CZ_NAME");
             int len = stations.size();
-            //筛出重复站点
+            /**
+             * 筛出重复站点
+             */
             if(len !=0 && Cz_name.equals(stations.get(len-1)))
                 continue;
             else stations.add(Cz_name);
@@ -109,8 +120,15 @@ public class OracleGetTransferStationsByIdImpl implements OracleGetTransferStati
         return stations;
     }
 
+    /**
+     *通过站点id查询当前路径经过的站点所在的线路
+     * 不同线路上的每个站点都有唯一的id与之对应，同一站点可能有多个id（如：换乘点）
+     *      * @param id
+     * @return
+     */
+
     @Override
-    public String selectStationName(Integer id){
+    public String selectLineName(Integer id){
         Map stationNameMap=jdbcTemplate.queryForMap("SELECT LJM\n" +
                 "from \"SCOTT\".\"dic_station\"\n" +
                 "WHERE CZ_ID="+id+"");

@@ -1,5 +1,5 @@
 package cn.edu.sicau.pfdistribution.dao.Impl;
-import cn.edu.sicau.pfdistribution.dao.mysqlsave.RegionSaveInterface;
+import cn.edu.sicau.pfdistribution.dao.sqlmpl.RegionSaveInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;

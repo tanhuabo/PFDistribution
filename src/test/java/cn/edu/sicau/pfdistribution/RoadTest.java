@@ -1,5 +1,5 @@
 package cn.edu.sicau.pfdistribution;
-import cn.edu.sicau.pfdistribution.dao.mysqlsave.RoadDistributionDao;
+import cn.edu.sicau.pfdistribution.dao.sqlmpl.RoadDistributionDao;
 import cn.edu.sicau.pfdistribution.entity.DirectedPath;
 import cn.edu.sicau.pfdistribution.entity.ODPath;
 import cn.edu.sicau.pfdistribution.entity.ODPathWithJson;
@@ -10,7 +10,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 

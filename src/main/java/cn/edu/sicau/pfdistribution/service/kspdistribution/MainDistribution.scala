@@ -151,7 +151,10 @@ case class MainDistribution @Autowired() (calBase:CalculateBaseInterface,getOdLi
     return regionMap
   }
 
-  //rest接口调用
+  /*
+  * od：需要查询路径的od对
+  * return 返回搜索到的时间最少、换乘最少的两条路径
+  * */
   def getDistribution(od:String):Object = {
     getLineID.setCZ_ID()
     //val data1:mutable.Map[Array[DirectedEdge], Double] = calBase.staticOdPathSearch(od)

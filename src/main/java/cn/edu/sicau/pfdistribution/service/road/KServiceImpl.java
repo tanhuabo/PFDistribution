@@ -2,7 +2,7 @@ package cn.edu.sicau.pfdistribution.service.road;
 
 import cn.edu.sicau.pfdistribution.Constants;
 import cn.edu.sicau.pfdistribution.Utils.TimeUtil;
-import cn.edu.sicau.pfdistribution.dao.mysqlsave.RoadDistributionDao;
+import cn.edu.sicau.pfdistribution.dao.sqlmpl.RoadDistributionDao;
 import cn.edu.sicau.pfdistribution.entity.*;
 import cn.edu.sicau.pfdistribution.service.kspcalculation.Edge;
 import cn.edu.sicau.pfdistribution.service.kspcalculation.Graph;

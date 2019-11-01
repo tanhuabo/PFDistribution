@@ -9,6 +9,9 @@ import org.springframework.boot.configurationprocessor.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author 谭华波
+ */
 public class JsonToObjectUtil {
     public static final String path = "path";
     public static final String edge = "edge";

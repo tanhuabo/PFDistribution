@@ -1,6 +1,6 @@
 package cn.edu.sicau.pfdistribution.service;
 
-import cn.edu.sicau.pfdistribution.dao.mysqlsave.RoadDistributionDao;
+import cn.edu.sicau.pfdistribution.dao.sqlmpl.RoadDistributionDao;
 import cn.edu.sicau.pfdistribution.entity.Section;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

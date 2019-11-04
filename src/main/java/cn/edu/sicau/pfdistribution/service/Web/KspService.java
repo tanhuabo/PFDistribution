@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface KspService {
     public List<KspSearchResult> findKsp(SWJTU_DTO swjtu_dto);
+    public List<SectionIdResultData> getVlumeRatio(StartParagram startParagram);
 }
+

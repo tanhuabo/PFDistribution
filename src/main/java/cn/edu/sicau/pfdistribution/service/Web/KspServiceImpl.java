@@ -18,6 +18,8 @@ public class KspServiceImpl implements KspService {
     @Autowired
     private OracleGetTransferStationsById oracleGetTransferStationsById;
 
+
+
     @Override
     public List<KspSearchResult> findKsp(SWJTU_DTO swjtu_dto) {
 
@@ -37,4 +39,26 @@ public class KspServiceImpl implements KspService {
         }
         return kspSearchResults;
     }
+    @Override
+    public List<SectionIdResultData> getVlumeRatio(StartParagram startParagram) {
+        List<SectionIdResultData>list=new ArrayList<>();
+        GetSectionIdAndSectionCrowdNum getSectionIdAndSectionCrowdNum =new GetSectionIdAndSectionCrowdNum();
+        int sectionID = startParagram.getSectionId();
+        Map<Integer,String> VRDataMap;
+        if (startParagram.getSectionId()!=0){
+            Map<Integer,String> map= getSectionIdAndSectionCrowdNum.VRData(sectionID);
+            VRDataMap=map;
+        }else {
+            Map<Integer,String> map= getSectionIdAndSectionCrowdNum.VRData();
+            VRDataMap=map;
+        }
+        for(Map.Entry<Integer, String> entry : VRDataMap.entrySet()){
+            SectionIdResultData sectionIdResultData =new SectionIdResultData();
+            sectionIdResultData.setSectionId(entry.getKey());
+            sectionIdResultData.setSectionCrowdNum(entry.getValue());
+            list.add(sectionIdResultData);
+        }
+        return list;
+    }
+
 }

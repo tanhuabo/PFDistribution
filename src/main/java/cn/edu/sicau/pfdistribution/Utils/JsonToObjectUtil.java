@@ -21,7 +21,7 @@ public class JsonToObjectUtil {
     public static final String edgeDirection = "direction";
     public static List<DirectedPath> jsonPathToDirectedPath(JSONArray jsonArray) throws JSONException {
         List<DirectedPath>paths = new ArrayList<>();
-        for(int i = 0; i < jsonArray.length(); i++){
+            for(int i = 0; i < jsonArray.length(); i++){
             JSONObject obj = jsonArray.getJSONObject(i);
             JSONArray edges = obj.getJSONArray(path);
         }

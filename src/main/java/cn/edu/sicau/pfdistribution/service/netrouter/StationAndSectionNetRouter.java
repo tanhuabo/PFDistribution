@@ -126,7 +126,7 @@ public class StationAndSectionNetRouter {
                         "</in_condition>\n";
         String ip= InetAddress.getLocalHost().getHostAddress();
 
-        NetRouterClient netRouterClient = new NetRouterClient("Test", "10.11.26.14", 9003, ip, 9005, localaddr, "");
+        NetRouterClient netRouterClient = new NetRouterClient("Test", "192.168.19.1", 9003, ip, 9005, localaddr, "");
         while (!netRouterClient.start()) {
             log.info("StationAndSectionNetRouter  Start fails.");
             Thread.sleep(10);

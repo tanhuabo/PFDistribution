@@ -19,8 +19,6 @@ import java.util.Map;
 @Service
 public class JsonTransfer {
     @Autowired
-    public StationAndSectionPassengers stationAndSectionPassengers;
-    @Autowired
     public Risk risk;
 
     public boolean stationDataAnalysis(JSONObject jsonObject){
@@ -53,9 +51,9 @@ public class JsonTransfer {
                 sectionPassengers.add(s.getString("Volume"));
                 sectionP.put(s.getString("StartId") + " " + s.getString("EndId"), sectionPassengers);
             }
-            stationAndSectionPassengers.setStationP(stationP);
-            stationAndSectionPassengers.setSectionP(sectionP);
             System.out.println("StationAndSectionNetRouter数据处理成功" );
+            StationAndSectionPassengers stationAndSectionPassengers = new StationAndSectionPassengers(stationP,sectionP);
+            Constants.stationAndSectionPassengers = stationAndSectionPassengers;
             return true;
         }catch (Exception e){
             return false;

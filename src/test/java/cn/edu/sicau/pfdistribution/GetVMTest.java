@@ -1,6 +1,7 @@
 package cn.edu.sicau.pfdistribution;
 
 import cn.edu.sicau.pfdistribution.entity.StationAndSectionPassengers;
+import cn.edu.sicau.pfdistribution.service.Web.GetStationIdAndSectionIdImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +22,15 @@ public class GetVMTest {
     private JdbcTemplate jdbcTemplate;
     HashMap<String,Integer> map;
 
+    @Autowired
+    GetStationIdAndSectionIdImpl getStationIdAndSectionId;
+
 //  @Test
 //    public Map<String,Integer> getVRDataNotParameter()
     @Test
     public void GetVM()
     {
+
         Map returnMap = new HashMap();
         List rows=jdbcTemplate.queryForList("SELECT CZ1_ID,CZ2_ID,QJ_ID FROM \"SCOTT\".\"dic_section\"");
         Iterator it = rows.iterator();

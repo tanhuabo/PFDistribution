@@ -1,12 +1,16 @@
 package cn.edu.sicau.pfdistribution.service.Web;
 
+import cn.edu.sicau.pfdistribution.Constants;
 import cn.edu.sicau.pfdistribution.entity.StationAndSectionPassengers;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+
+@Service
 public class GetSectionIdAndSectionCrowdNum {
     public Map<Integer,String> VRData(){
-        StationAndSectionPassengers stationAndSectionPassengers = new StationAndSectionPassengers();
+        StationAndSectionPassengers stationAndSectionPassengers = Constants.stationAndSectionPassengers;
         GetStationIdAndSectionIdImpl getOracleData=new GetStationIdAndSectionIdImpl();
         Map<String,Integer>getMap=getOracleData.getVRDataNotParameter();
         Map<String, List<String>> sectionP= stationAndSectionPassengers.getSectionP();
@@ -20,7 +24,7 @@ public class GetSectionIdAndSectionCrowdNum {
         return returnMap;
     }
     public Map<Integer,String> VRData(Integer id){
-        StationAndSectionPassengers stationAndSectionPassengers = new StationAndSectionPassengers();
+        StationAndSectionPassengers stationAndSectionPassengers = Constants.stationAndSectionPassengers;
         GetStationIdAndSectionIdImpl getOracleData=new GetStationIdAndSectionIdImpl();
         Map<String,Integer>getMap=getOracleData.getVRDataHaveParameter(id);
         Map<String, List<String>> sectionP= stationAndSectionPassengers.getSectionP();

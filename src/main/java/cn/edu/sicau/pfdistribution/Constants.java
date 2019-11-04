@@ -1,5 +1,7 @@
 package cn.edu.sicau.pfdistribution;
 
+import cn.edu.sicau.pfdistribution.entity.StationAndSectionPassengers;
+
 public class Constants {
     public static final String DIRECTION_1 = "u";
     public static final String DIRECTION_2 = "d";
@@ -20,5 +22,5 @@ public class Constants {
     public static String DATA_DATE_DAY = "2018-09-01";
     public static int DATA_DATE_HOUR = 0;
     public static int DATA_DATE_MIN = 0;
-
+    public static StationAndSectionPassengers stationAndSectionPassengers = null;
 }

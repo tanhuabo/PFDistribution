@@ -17,6 +17,11 @@ public class StationAndSectionPassengers implements Serializable {
         this.sectionP = null;
     }
 
+    public StationAndSectionPassengers(Map<String, List<String>> stationP, Map<String, List<String>> sectionP) {
+        this.stationP = stationP;
+        this.sectionP = sectionP;
+    }
+
     public Map<String, List<String>> getStationP() {
         return stationP;
     }

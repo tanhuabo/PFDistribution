@@ -28,10 +28,6 @@ public class KspController {
     }
 
 
-
-
-    //自定义查询拥挤度
-//    @Autowired
     @PostMapping("/querySectionsCrowd.do")
     public Object  GetVlumeRatio(StartParagram startParagram) {
         List<SectionIdResultData>data=kspService.getVlumeRatio(startParagram);

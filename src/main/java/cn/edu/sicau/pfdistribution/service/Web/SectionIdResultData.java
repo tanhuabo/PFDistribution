@@ -1,8 +1,9 @@
 package cn.edu.sicau.pfdistribution.service.Web;
-/*
-*查询拥挤度--json格式下的类
-*
-*/
+
+/**
+ * 查询拥挤度--json格式下的类
+ */
+
 public class SectionIdResultData {
     private int sectionId;
     private String sectionCrowdNum;

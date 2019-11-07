@@ -46,7 +46,7 @@ public class KspServiceImpl implements KspService {
     public List<SectionIdResultData> getVlumeRatio(StartParagram startParagram) {
         List<SectionIdResultData>list=new ArrayList<>();
         //GetSectionIdAndSectionCrowdNum getSectionIdAndSectionCrowdNum =new GetSectionIdAndSectionCrowdNum();
-        int sectionID = startParagram.getSectionId();0
+        int sectionID = startParagram.getSectionId();
         Map<Integer,String> VRDataMap;
         if (startParagram.getSectionId()!=-1){
             Map<Integer,String> map= getSectionIdAndSectionCrowdNum.VRData(sectionID);

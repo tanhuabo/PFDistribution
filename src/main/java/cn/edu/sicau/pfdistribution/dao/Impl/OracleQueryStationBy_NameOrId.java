@@ -85,4 +85,3 @@ public class OracleQueryStationBy_NameOrId {
         return result;
     }
     }
-

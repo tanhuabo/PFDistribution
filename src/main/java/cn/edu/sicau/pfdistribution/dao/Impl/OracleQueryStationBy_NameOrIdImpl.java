@@ -1,5 +1,6 @@
 package cn.edu.sicau.pfdistribution.dao.Impl;
 
+import cn.edu.sicau.pfdistribution.dao.oracle.OracleQueryStationBy_NameOrId;
 import cn.edu.sicau.pfdistribution.entity.KspQueryResult;
 import cn.edu.sicau.pfdistribution.entity.QueryStationBy_NameOrID;
 import jdk.nashorn.internal.runtime.logging.DebugLogger;
@@ -12,7 +13,7 @@ import java.util.*;
 import java.util.logging.Logger;
 
 @Repository
-public class OracleQueryStationBy_NameOrId {
+public class OracleQueryStationBy_NameOrIdImpl implements OracleQueryStationBy_NameOrId {
     @Autowired
     @Qualifier("oracleJdbcTemplate")
     private JdbcTemplate jdbcTemplate;

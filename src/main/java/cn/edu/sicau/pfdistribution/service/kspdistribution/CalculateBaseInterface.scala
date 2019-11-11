@@ -14,7 +14,7 @@ trait CalculateBaseInterface {
   /*
   * 路劲搜索
   * */
-  def dynamicOdPathSearch(targetOd: String):mutable.Map[Array[DirectedEdge], Double]
+  def dynamicOdPathSearch(targetOd: String):mutable.Map[Array[DirectedEdge], String]
 
   //计算单个OD对的OD分配结果
   def kspDistribution(map: Map[Array[DirectedEdge], Double], x: Int): mutable.Map[Array[DirectedEdge], Double]

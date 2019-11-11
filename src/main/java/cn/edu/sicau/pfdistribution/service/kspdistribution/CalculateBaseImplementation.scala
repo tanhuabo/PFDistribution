@@ -58,7 +58,7 @@ class CalculateBaseImplementation @Autowired() (dynamicCosting:KspDynamicCosting
 
    return text1
  }
-  override def dynamicOdPathSearch(targetOd: String):mutable.Map[Array[DirectedEdge], Double] = {
+  override def dynamicOdPathSearch(targetOd: String):mutable.Map[Array[DirectedEdge], String] = {
     val aList = targetOd.split(" ")
     val sou = aList(0)
     val tar = aList(1)
@@ -84,7 +84,15 @@ class CalculateBaseImplementation @Autowired() (dynamicCosting:KspDynamicCosting
         val myArray = key.toArray
         text1 += (myArray -> text.apply(key))
       }
-      return dynamicCosting.cost_Count(text1)
+      val dynamicCost = dynamicCosting.cost_Count(text1)
+      var distanceAndTimeCost: mutable.Map[Array[DirectedEdge],String] = mutable.Map()
+      for(key <- text1.keys){
+        val str:String = text1(key).toString +" "+ dynamicCost(key).toString
+        distanceAndTimeCost += (key -> str)
+      }
+      return distanceAndTimeCost
+
+//      return dynamicCosting.cost_Count(text1)
     }
   }
 

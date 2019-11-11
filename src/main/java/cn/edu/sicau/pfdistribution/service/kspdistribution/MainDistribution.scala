@@ -158,15 +158,15 @@ case class MainDistribution @Autowired() (calBase:CalculateBaseInterface,getOdLi
   def getDistribution(od:String):Object = {
     getLineID.setCZ_ID()
     //val data1:mutable.Map[Array[DirectedEdge], Double] = calBase.staticOdPathSearch(od)
-    val data2:mutable.Map[Array[DirectedEdge], Double] = calBase.dynamicOdPathSearch(od)
-    var result: Map[String, Double] = Map()
+    val data2:mutable.Map[Array[DirectedEdge], String] = calBase.dynamicOdPathSearch(od)
+    var result: Map[String, String] = Map()
     val minPathMap1:Array[DirectedEdge]=totalTransfer(data2)
     val minPathMap2:Array[DirectedEdge]=minWeightPath(data2)
     val minDataArray:Array[Array[DirectedEdge]] = Array(minPathMap1,minPathMap2)
     for(i <- 0 to (minDataArray.length -1)) {
       val minPath: Array[DirectedEdge] = minDataArray(i)
       val directedEdge: DirectedEdge = minPath(0)
-      val edge: Edge = directedEdge.getEdge
+      val edge:  Edge = directedEdge.getEdge
       var str = edge.getFromNode
       for (i <- 1 to (minPath.length - 1)) {
         val dEdge: DirectedEdge = minPath(i)
@@ -188,19 +188,22 @@ case class MainDistribution @Autowired() (calBase:CalculateBaseInterface,getOdLi
    }
  }
   //筛选出所有路径中权值和最小的路径
-  def minWeightPath(data:mutable.Map[Array[DirectedEdge], Double]):Array[DirectedEdge]={
+  def minWeightPath(data:mutable.Map[Array[DirectedEdge], String]):Array[DirectedEdge]={
     //费用最短路径
     var result:mutable.Map[Array[DirectedEdge],Double] = mutable.Map()
-    val minPath:Double = data.values.min
+    val value = data.values.head.split(" ").head.toDouble
+    var minPath:Double = value
     for(key <- data.keys){
-     if(data(key)==minPath)
+      val distance:Double = data(key).split(" ").head.toDouble
+     if(distance <= minPath)
+       minPath = distance
        result.clear()
        result += (key -> minPath)
     }
     return result.keys.head
   }
   //换乘最少路径
-  def totalTransfer(data:mutable.Map[Array[DirectedEdge], Double]):Array[DirectedEdge]={
+  def totalTransfer(data:mutable.Map[Array[DirectedEdge], String]):Array[DirectedEdge]={
     var result:mutable.Map[Array[DirectedEdge],Double] = mutable.Map()
     val CZMap:mutable.Map[Integer, Integer]=lineIdAndSectionTime.getStationIdToLineId.asScala
     var totalTransfer = 10000

@@ -9,6 +9,9 @@ import cn.edu.sicau.pfdistribution.entity.SWJTU_DTO;
 import cn.edu.sicau.pfdistribution.Utils.ResultMsg;
 import cn.edu.sicau.pfdistribution.Utils.ResultStatusCode;
 import cn.edu.sicau.pfdistribution.service.Web.KspService;
+import cn.edu.sicau.pfdistribution.service.Web.ReturnResultForm;
+import cn.edu.sicau.pfdistribution.service.Web.SectionIdResultData;
+import cn.edu.sicau.pfdistribution.service.Web.StartParagram;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,5 +41,11 @@ public class KspController {
         List<KspQueryResult> odAndTime=oracleQueryStationBy_nameOrId.findAll(queryStationBy_nameOrID);
         ResultMsg2 resultMsg = new ResultMsg2(ResultStatusCode.OK.getErrcode(), ResultStatusCode.OK.getErrmsg(),odAndTime);
         return resultMsg;
+    }
+    @PostMapping("/querySectionsCrowd.do")
+    public Object GetVolumeRatio(StartParagram startParagram) {
+        List<SectionIdResultData>data=kspService.getVlumeRatio(startParagram);
+        ReturnResultForm returnResultForm =new ReturnResultForm(ResultStatusCode.OK.getErrcode(),ResultStatusCode.OK.getErrmsg(),data);
+        return returnResultForm;
     }
 }

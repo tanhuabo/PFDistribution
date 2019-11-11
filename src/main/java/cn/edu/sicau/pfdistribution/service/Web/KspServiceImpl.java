@@ -19,8 +19,8 @@ public class KspServiceImpl implements KspService {
 
     @Autowired
     private OracleGetTransferStationsById oracleGetTransferStationsById;
-
-
+    @Autowired
+    GetSectionIdAndSectionCrowdNum getSectionIdAndSectionCrowdNum;
     @Override
     public List<KspSearchResult> findKsp(SWJTU_DTO swjtu_dto) {
 
@@ -41,9 +41,49 @@ public class KspServiceImpl implements KspService {
         return kspSearchResults;
     }
 
+
     @Override
     public List<KspQueryResult> getQueryInfo(QueryStationBy_NameOrID queryStationBy_nameOrID) {
-
         return null;
+    }
+
+    /**
+     *
+     * @author weiyongzhao
+     * @return data列表
+     */
+    @Override
+    public List<SectionIdResultData> getVlumeRatio(StartParagram startParagram) {
+        List<SectionIdResultData>list=new ArrayList<>();
+        //GetSectionIdAndSectionCrowdNum getSectionIdAndSectionCrowdNum =new GetSectionIdAndSectionCrowdNum();
+        int sectionID = startParagram.getSectionId();
+        Map<Integer,String> VRDataMap;
+        if (startParagram.getSectionId()!=-1){
+            Map<Integer,String> map= getSectionIdAndSectionCrowdNum.VRData(sectionID);
+            VRDataMap=map;
+        }else {
+            Map<Integer,String> map= getSectionIdAndSectionCrowdNum.VRData();
+            VRDataMap=map;
+        }
+        for(Map.Entry<Integer, String> entry : VRDataMap.entrySet()){
+            SectionIdResultData sectionIdResultData =new SectionIdResultData();
+            Integer sectionId=entry.getKey();
+            String crowdNum=entry.getValue();
+            String crowdGrade;
+            if (Double.parseDouble(crowdNum)<0.5){
+                crowdGrade="不拥挤";
+            }
+            else if(Double.parseDouble(crowdNum)>0.5&&Double.parseDouble(crowdNum)<0.8){
+                crowdGrade="轻度拥挤";
+            }
+            else{
+                crowdGrade="十分拥挤";
+            }
+            sectionIdResultData.setSectionId(sectionId);
+            sectionIdResultData.setSectionCrowdNum(crowdNum);
+            sectionIdResultData.setSectionCrowdInfo(crowdGrade);
+            list.add(sectionIdResultData);
+        }
+        return list;
     }
 }

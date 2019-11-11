@@ -2,12 +2,14 @@ package cn.edu.sicau.pfdistribution.dao.Impl;
 
 import cn.edu.sicau.pfdistribution.entity.KspQueryResult;
 import cn.edu.sicau.pfdistribution.entity.QueryStationBy_NameOrID;
+import jdk.nashorn.internal.runtime.logging.DebugLogger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 @Repository
 public class OracleQueryStationBy_NameOrId {
@@ -26,7 +28,7 @@ public class OracleQueryStationBy_NameOrId {
     String getLineTime="select QSZM,ZZZM,QSSJ,ZZSJ,QSQJH,ZZQJH from \"SCOTT\".\"base_lckxfa\" where QSZM=";
 
     public List<KspQueryResult> findAll(QueryStationBy_NameOrID queryStationBy_nameOrID){
-
+    try {
         List<Map<String, Object>> Line_ID_map = jdbcTemplate.queryForList(getLineNameAndStationID+"'"+queryStationBy_nameOrID.getStationName()+"'");
         Iterator<Map<String, Object>> it1 = Line_ID_map.iterator();
         List<String> linesNames = new ArrayList<>();
@@ -83,5 +85,9 @@ public class OracleQueryStationBy_NameOrId {
             result.add(kspQueryResult2);
         }
         return result;
+    }catch (Exception e){
+        Logger.getLogger(String.valueOf(e));
+        throw e;
+    }
     }
     }

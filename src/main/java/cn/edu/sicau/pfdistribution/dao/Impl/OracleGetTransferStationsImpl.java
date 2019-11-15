@@ -28,22 +28,22 @@ public class OracleGetTransferStationsImpl implements OracleGetTransferStations 
         //初始化前一个站点所属线路List和当前站点所属线路List
         List pre=jdbcTemplate.queryForList(getLineListSql+"'"+odStations.get(0)+"'");
         List<Integer> preLines=new ArrayList<>();
-        Iterator preit = pre.iterator();
-        while(preit.hasNext()) {
-            Map LineMap = (Map) preit.next();
+        Iterator preIt = pre.iterator();
+        while(preIt.hasNext()) {
+            Map LineMap = (Map) preIt.next();
             Integer line_id = Integer.parseInt(LineMap.get("LINE_ID").toString());
             preLines.add(line_id);
         }
         List mid=jdbcTemplate.queryForList(getLineListSql+"'"+odStations.get(1)+"'");
         List<Integer> midLines=new ArrayList<>();
-        Iterator midit = mid.iterator();
-        while(midit.hasNext()) {
-            Map LineMap = (Map) midit.next();
+        Iterator midIt = mid.iterator();
+        while(midIt.hasNext()) {
+            Map LineMap = (Map) midIt.next();
             Integer line_id = Integer.parseInt(LineMap.get("LINE_ID").toString());
             midLines.add(line_id);
         }
         //确定前一个站所属线路
-        int JudgeOrnot=0;
+        int JudgeOrNot=0;
         for(int i=0;i<preLines.size();i++){
             for(int a=0;a<midLines.size();a++){
                 if(preLines.get(i).equals(midLines.get(a))){
@@ -52,29 +52,29 @@ public class OracleGetTransferStationsImpl implements OracleGetTransferStations 
                     //如果在，则说明当前定位到的线路就是前一个站点所在线路，否则不是，继续迭代
                     List sections1=jdbcTemplate.queryForList(getSection1ListSql+"'"+odStations.get(0)+"'"+" and LINE_ID="+preLines.get(i));
                     List<String> sectionList1=new ArrayList<>();
-                    Iterator sectionit1 = sections1.iterator();
-                    Map LineMap1 = (Map) sectionit1.next();
+                    Iterator sectionIt1 = sections1.iterator();
+                    Map LineMap1 = (Map) sectionIt1.next();
                     String section1 = (String)LineMap1.get("CZ2_NAME");
                     sectionResult.add(section1);
                     List sections2=jdbcTemplate.queryForList(getSection2ListSql+"'"+odStations.get(0)+"'"+" and LINE_ID="+preLines.get(i));
                     List<String> sectionList2=new ArrayList<>();
-                    Iterator sectionit2 = sections2.iterator();
-                    Map LineMap2 = (Map) sectionit2.next();
+                    Iterator sectionIt2 = sections2.iterator();
+                    Map LineMap2 = (Map) sectionIt2.next();
                     String section2 = (String)LineMap2.get("CZ1_NAME");
                     sectionResult.add(section2);
                     for(int b=0;b<sectionResult.size();b++){
                         if(odStations.get(1).equals(sectionResult.get(b))){
                             preLines.clear();
                             preLines.add(midLines.get(a));
-                            JudgeOrnot=1;
+                            JudgeOrNot=1;
                             break;
                         }
                     }
                 }
-                if(JudgeOrnot==1)
+                if(JudgeOrNot==1)
                     break;
             }
-            if(JudgeOrnot==1)
+            if(JudgeOrNot==1)
                 break;
         }
         //标记起点和第一个站点
@@ -85,9 +85,9 @@ public class OracleGetTransferStationsImpl implements OracleGetTransferStations 
             //获取到后一个站所属的线路List
             List rear=jdbcTemplate.queryForList(getLineListSql+"'"+odStations.get(i+1)+"'");
             List<Integer> rearLines=new ArrayList<>();
-            Iterator rearit = rear.iterator();
-            while(rearit.hasNext()) {
-                Map LineMap = (Map) rearit.next();
+            Iterator rearIt = rear.iterator();
+            while(rearIt.hasNext()) {
+                Map LineMap = (Map) rearIt.next();
                 Integer line_id = Integer.parseInt(LineMap.get("LINE_ID").toString());
                 rearLines.add(line_id);
             }
@@ -99,7 +99,7 @@ public class OracleGetTransferStationsImpl implements OracleGetTransferStations 
                 }
             }
             //更新前、中、后所属线路List
-            JudgeOrnot=0;
+            JudgeOrNot=0;
             for(int c=0;c<midLines.size();c++){
                 for(int d=0;d<rearLines.size();d++){
                     if(midLines.get(c).equals(rearLines.get(d))){
@@ -108,29 +108,29 @@ public class OracleGetTransferStationsImpl implements OracleGetTransferStations 
                         //如果在，则说明当前定位到的线路就是前一个站点所在线路，否则不是，继续迭代
                         List sections1=jdbcTemplate.queryForList(getSection1ListSql+"'"+odStations.get(i)+"'"+" and LINE_ID="+midLines.get(c));
                         List<String> sectionList1=new ArrayList<>();
-                        Iterator sectionit1 = sections1.iterator();
-                        Map LineMap1 = (Map) sectionit1.next();
+                        Iterator sectionIt1 = sections1.iterator();
+                        Map LineMap1 = (Map) sectionIt1.next();
                         String section1 = (String)LineMap1.get("CZ2_NAME");
                         sectionResult.add(section1);
                         List sections2=jdbcTemplate.queryForList(getSection2ListSql+"'"+odStations.get(i)+"'"+" and LINE_ID="+midLines.get(c));
                         List<String> sectionList2=new ArrayList<>();
-                        Iterator sectionit2 = sections2.iterator();
-                        Map LineMap2 = (Map) sectionit2.next();
+                        Iterator sectionIt2 = sections2.iterator();
+                        Map LineMap2 = (Map) sectionIt2.next();
                         String section2 = (String)LineMap2.get("CZ1_NAME");
                         sectionResult.add(section2);
                         for(int b=0;b<sectionResult.size();b++){
                             if(odStations.get(i+1).equals(sectionResult.get(b))){
                                 midLines.clear();
                                 midLines.add(rearLines.get(d));
-                                JudgeOrnot=1;
+                                JudgeOrNot=1;
                                 break;
                             }
                         }
                     }
-                    if(JudgeOrnot==1)
+                    if(JudgeOrNot==1)
                         break;
                 }
-                if(JudgeOrnot==1)
+                if(JudgeOrNot==1)
                     break;
             }
             preLines.clear();

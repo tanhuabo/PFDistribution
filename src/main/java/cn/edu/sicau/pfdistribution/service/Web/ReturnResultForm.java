@@ -9,9 +9,9 @@ import java.util.List;
 public class ReturnResultForm {
     private int status;
     private String msg;
-    private List<SectionIdResultData>data;
+    private List<CrowdNumResult>data;
 
-    public ReturnResultForm(int status, String msg, List<SectionIdResultData>data){
+    public ReturnResultForm(int status, String msg, List<CrowdNumResult>data){
         this.status=status;
         this.msg=msg;
         this.data=data;
@@ -33,11 +33,11 @@ public class ReturnResultForm {
         this.msg = msg;
     }
 
-    public List<SectionIdResultData> getData() {
+    public List<CrowdNumResult> getData() {
         return data;
     }
 
-    public void setData(List<SectionIdResultData> data) {
+    public void setData(List<CrowdNumResult> data) {
         this.data = data;
     }
 }

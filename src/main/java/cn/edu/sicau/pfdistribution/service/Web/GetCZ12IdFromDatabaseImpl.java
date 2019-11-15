@@ -11,16 +11,21 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @author weiyongzhao
+ *return 两个车站id和区间id的map
+ * */
+
 @Repository
-public class GetStationIdAndSectionIdImpl implements GetStationIdAndSectionId {
+public class GetCZ12IdFromDatabaseImpl implements GetCZ12IdFromDatabase {
     @Autowired
     @Qualifier("oracleJdbcTemplate")
     JdbcTemplate jdbcTemplate;
 
 
     @Override
-    public Map getVRDataNotParameter(){
-        Map getOracleDataImplMap = new HashMap();
+    public Map getCZ12IDNoParameterFromDatabase() {
+        Map result = new HashMap();
         List rows=jdbcTemplate.queryForList("SELECT CZ1_ID,CZ2_ID,QJ_ID FROM \"SCOTT\".\"dic_section\"");
         Iterator it = rows.iterator();
         while(it.hasNext()) {
@@ -29,15 +34,16 @@ public class GetStationIdAndSectionIdImpl implements GetStationIdAndSectionId {
             Integer  CZ2_ID =Integer.parseInt(userMap.get("CZ2_ID").toString()) ;
             String CZ12_ID=CZ1_ID.toString()+" "+CZ2_ID.toString();
             Integer SectionID = Integer.parseInt(userMap.get("QJ_ID").toString());
-            getOracleDataImplMap.put(CZ12_ID,SectionID);
+            result.put(CZ12_ID,SectionID);
         }
-        return getOracleDataImplMap;
+        return result;
     }
+
     @Override
-    public Map<String,Integer> getVRDataHaveParameter(Integer id){
+    public Map<String,Integer> getCZ12IDWithParameterFromDatabase(Integer id){
         List rows=jdbcTemplate.queryForList("SELECT CZ1_ID,CZ2_ID,QJ_ID FROM \"SCOTT\".\"dic_section\" where QJ_ID ="+id+"");
         Iterator it = rows.iterator();
-        Map returnMap = new HashMap();
+        Map result = new HashMap();
         while (it.hasNext()){
             Map userMap = (Map) it.next();
             Integer SectionID = Integer.parseInt(userMap.get("QJ_ID").toString());
@@ -45,10 +51,10 @@ public class GetStationIdAndSectionIdImpl implements GetStationIdAndSectionId {
                 Integer CZ1_ID = Integer.parseInt(userMap.get("CZ1_ID").toString());
                 Integer  CZ2_ID =Integer.parseInt(userMap.get("CZ2_ID").toString()) ;
                 String CZ12_ID=CZ1_ID.toString()+" "+CZ2_ID.toString();
-               returnMap.put(CZ12_ID,SectionID);
+                result.put(CZ12_ID,SectionID);
             }
-    }
-        return returnMap;
+        }
+        return result;
     }
 
 }

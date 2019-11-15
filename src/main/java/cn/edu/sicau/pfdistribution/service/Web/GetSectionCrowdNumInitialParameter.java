@@ -8,13 +8,13 @@ import org.springframework.stereotype.Service;
 * */
 
 @Service
-public class StartParagram {
+public class GetSectionCrowdNumInitialParameter {
     private int sectionId;
 
-    public StartParagram(){
+    public GetSectionCrowdNumInitialParameter(){
         this.sectionId=-1;
     }
-    public StartParagram(int sectionId){
+    public GetSectionCrowdNumInitialParameter(int sectionId){
         this.sectionId=sectionId;
     }
 

@@ -53,16 +53,16 @@ public class RoadPlanningServiceImpl implements RoadPlanningService {
             if(value<=6){
                 price=2;
             }
-            else if (value>6&&value<=11){
+            else if (value<=11){
                 price=3;
             }
-            else if(value>11&&value<=17){
+            else if(value<=17){
                 price=4;
             }
-            else if(value>17&&value<=24){
+            else if(value<=24){
                 price=5;
             }
-            else if(value>24&&value<=32){
+            else if(value<=32){
                 price=6;
             }
             else if(value>32&&value<=41){

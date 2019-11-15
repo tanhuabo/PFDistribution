@@ -1,19 +1,20 @@
 package cn.edu.sicau.pfdistribution.service.Web;
 
 /**
- * author：weiyongzhao
- * data列表中的类
+ *
+ * @author：weiyongzhao
+ * @return: 区间id、区间拥挤度和区间拥挤度等级
  */
 
-public class SectionIdResultData {
+public class CrowdNumResult {
     private int sectionId;
     private String sectionCrowdNum;
     private String sectionCrowdInfo;
 
-    public SectionIdResultData(){
+    public CrowdNumResult(){
 
     }
-    public SectionIdResultData(int sectionId, String sectionCrowdNum, String sectionCrowdInfo){
+    public CrowdNumResult(int sectionId, String sectionCrowdNum, String sectionCrowdInfo){
         this.sectionId=sectionId;
         this.sectionCrowdNum=sectionCrowdNum;
         this.sectionCrowdInfo=sectionCrowdInfo;

@@ -1,14 +1,17 @@
-package cn.edu.sicau.pfdistribution.entity;
+package cn.edu.sicau.pfdistribution.service.Web;
 
-public class QueryStationBy_NameOrID {
+/**
+ * @author LiYongPing
+ */
+public class QueryStationByNameOrID {
     private int station;
     private String stationName;
 
-    public QueryStationBy_NameOrID() {
+    public QueryStationByNameOrID() {
         this.station = -1;
     }
 
-    public QueryStationBy_NameOrID(int station, String stationName) {
+    public QueryStationByNameOrID(int station, String stationName) {
         this.station = station;
         this.stationName = stationName;
     }

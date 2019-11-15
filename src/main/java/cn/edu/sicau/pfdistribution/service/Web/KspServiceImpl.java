@@ -3,7 +3,6 @@ package cn.edu.sicau.pfdistribution.service.Web;
 import cn.edu.sicau.pfdistribution.dao.oracle.OracleGetTransferStationsById;
 import cn.edu.sicau.pfdistribution.entity.KspQueryResult;
 import cn.edu.sicau.pfdistribution.entity.KspSearchResult;
-import cn.edu.sicau.pfdistribution.entity.QueryStationBy_NameOrID;
 import cn.edu.sicau.pfdistribution.entity.SWJTU_DTO;
 import cn.edu.sicau.pfdistribution.service.kspdistribution.MainDistribution;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,22 +19,23 @@ public class KspServiceImpl implements KspService {
     @Autowired
     private OracleGetTransferStationsById oracleGetTransferStationsById;
     @Autowired
-    GetSectionIdAndSectionCrowdNum getSectionIdAndSectionCrowdNum;
+    SectionIdAndSectionCrowdNum sectionIdAndSectionCrowdNum;
+
     @Override
     public List<KspSearchResult> findKsp(SWJTU_DTO swjtu_dto) {
 
         List<KspSearchResult> kspSearchResults = new ArrayList<>();
-        Map map = (Map) mainDistribution.getDistribution(swjtu_dto.getStartStation()+" "+swjtu_dto.getEndStation());
+        Map map = (Map) mainDistribution.getDistribution(swjtu_dto.getStartStation() + " " + swjtu_dto.getEndStation());
 //        Map<String,Integer> map=new HashMap<>();
 //        map.put("海峡路,南湖,四公里,南坪,南滨路,七星岗,两路口,牛角沱",0);
-        Iterator it=map.keySet().iterator();
-        for(int i=1;it.hasNext();i++){
+        Iterator it = map.keySet().iterator();
+        for (int i = 1; it.hasNext(); i++) {
             List<String> odstations;
-            String odstation=it.next().toString();
-            odstations=Arrays.asList(odstation.split(","));
-            List<List<String>> transferstations=oracleGetTransferStationsById.getTransferStations(odstations);
-            List<String> stations=oracleGetTransferStationsById.getStationsById(odstations);
-            KspSearchResult kspSearchResult = new KspSearchResult(Integer.toString(i),stations,transferstations);
+            String odstation = it.next().toString();
+            odstations = Arrays.asList(odstation.split(","));
+            List<List<String>> transferstations = oracleGetTransferStationsById.getTransferStations(odstations);
+            List<String> stations = oracleGetTransferStationsById.getStationsById(odstations);
+            KspSearchResult kspSearchResult = new KspSearchResult(Integer.toString(i), stations, transferstations);
             kspSearchResults.add(kspSearchResult);
         }
         return kspSearchResults;
@@ -43,46 +43,42 @@ public class KspServiceImpl implements KspService {
 
 
     @Override
-    public List<KspQueryResult> getQueryInfo(QueryStationBy_NameOrID queryStationBy_nameOrID) {
+    public List<KspQueryResult> getQueryInfo(QueryStationByNameOrID queryStationBy_nameOrID) {
         return null;
     }
 
     /**
-     *
+     * @return 含区间id、区间拥挤度和区间拥挤度等级的对象列表
      * @author weiyongzhao
-     * @return data列表
      */
     @Override
-    public List<SectionIdResultData> getVlumeRatio(StartParagram startParagram) {
-        List<SectionIdResultData>list=new ArrayList<>();
-        //GetSectionIdAndSectionCrowdNum getSectionIdAndSectionCrowdNum =new GetSectionIdAndSectionCrowdNum();
-        int sectionID = startParagram.getSectionId();
-        Map<Integer,String> VRDataMap;
-        if (startParagram.getSectionId()!=-1){
-            Map<Integer,String> map= getSectionIdAndSectionCrowdNum.VRData(sectionID);
-            VRDataMap=map;
-        }else {
-            Map<Integer,String> map= getSectionIdAndSectionCrowdNum.VRData();
-            VRDataMap=map;
+    public List<CrowdNumResult> getSectionCrowdNumBySectionId(GetSectionCrowdNumInitialParameter getSectionCrowdNumInitialParameter) {
+        List<CrowdNumResult> list = new ArrayList<>();
+        int sectionID = getSectionCrowdNumInitialParameter.getSectionId();
+        Map<Integer, String> SectionIdAndSectionCrowdNum;
+        if (getSectionCrowdNumInitialParameter.getSectionId() != -1) {
+            Map<Integer, String> map = sectionIdAndSectionCrowdNum.getSectionIdAndSectionCrowdNum(sectionID);
+            SectionIdAndSectionCrowdNum = map;
+        } else {
+            Map<Integer, String> map = sectionIdAndSectionCrowdNum.getSectionIdAndSectionCrowdNum();
+            SectionIdAndSectionCrowdNum = map;
         }
-        for(Map.Entry<Integer, String> entry : VRDataMap.entrySet()){
-            SectionIdResultData sectionIdResultData =new SectionIdResultData();
-            Integer sectionId=entry.getKey();
-            String crowdNum=entry.getValue();
+        for (Map.Entry<Integer, String> entry : SectionIdAndSectionCrowdNum.entrySet()) {
+            CrowdNumResult crowdNumResult = new CrowdNumResult();
+            Integer sectionId = entry.getKey();
+            String crowdNum = entry.getValue();
             String crowdGrade;
-            if (Double.parseDouble(crowdNum)<0.5){
-                crowdGrade="不拥挤";
+            if (Double.parseDouble(crowdNum) < 0.5) {
+                crowdGrade = "不拥挤";
+            } else if (Double.parseDouble(crowdNum) > 0.5 && Double.parseDouble(crowdNum) < 0.8) {
+                crowdGrade = "轻度拥挤";
+            } else {
+                crowdGrade = "十分拥挤";
             }
-            else if(Double.parseDouble(crowdNum)>0.5&&Double.parseDouble(crowdNum)<0.8){
-                crowdGrade="轻度拥挤";
-            }
-            else{
-                crowdGrade="十分拥挤";
-            }
-            sectionIdResultData.setSectionId(sectionId);
-            sectionIdResultData.setSectionCrowdNum(crowdNum);
-            sectionIdResultData.setSectionCrowdInfo(crowdGrade);
-            list.add(sectionIdResultData);
+            crowdNumResult.setSectionId(sectionId);
+            crowdNumResult.setSectionCrowdNum(crowdNum);
+            crowdNumResult.setSectionCrowdInfo(crowdGrade);
+            list.add(crowdNumResult);
         }
         return list;
     }

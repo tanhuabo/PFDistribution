@@ -46,7 +46,7 @@ public class StationAndSectionNetRouter {
     private static void loadJNILibDynamically(String libName) throws IOException {// synchronized static
 
         String systemType = System.getProperty("os.name");
-        String libExtension = (systemType.toLowerCase().indexOf("win")!=-1) ? ".dll" : ".so";
+        String libExtension = (systemType.toLowerCase().indexOf("win") != -1) ? ".dll" : ".so";
 
         String libFullName = libName + libExtension;
 
@@ -56,9 +56,9 @@ public class StationAndSectionNetRouter {
         BufferedInputStream reader = null;
         FileOutputStream writer = null;
 
-        File extractedLibFile = new File(nativeTempDir+File.separator+libFullName);
+        File extractedLibFile = new File(nativeTempDir + File.separator + libFullName);
 
-        if(!extractedLibFile.exists()){
+        if (!extractedLibFile.exists()) {
             try {
                 if (StationAndSectionNetRouter.class.getResource("/" + libFullName) == null) {
                     throw new IllegalStateException("Lib " + libFullName + "not found!");
@@ -69,16 +69,15 @@ public class StationAndSectionNetRouter {
 
                 byte[] buffer = new byte[1024];
 
-                while (reader.read(buffer) > 0){
+                while (reader.read(buffer) > 0) {
                     writer.write(buffer);
                     buffer = new byte[1024];
                 }
-            }
-            finally {
-                if(in!=null) {
+            } finally {
+                if (in != null) {
                     in.close();
                 }
-                if(writer!=null) {
+                if (writer != null) {
                     writer.close();
                 }
             }
@@ -97,6 +96,7 @@ public class StationAndSectionNetRouter {
         log.info("Station and section Send suc");
         return true;
     }
+
     private boolean SendData1(NetRouterClient netClient, List<Address> f_list, TongHaoReturnResult data) {
 //        gson.toJson(data)
         SendMessage f_msg = new SendMessage(f_list, gson.toJson(data));
@@ -118,17 +118,17 @@ public class StationAndSectionNetRouter {
         destAddrs.add(destaddr1);
 //注册信息
         String reginfo =
-                "<in_condition>\n"+
-                        "<rec>\n"+
-                        "<protocol418_condition>\n"+
-                        "<type_func>0x04,0x09</type_func>\n"+
-                        "<type_func>0x04,0x09</type_func>\n"+
-                        "</protocol418_condition>\n"+
-                        "</rec>\n"+
+                "<in_condition>\n" +
+                        "<rec>\n" +
+                        "<protocol418_condition>\n" +
+                        "<type_func>0x04,0x09</type_func>\n" +
+                        "<type_func>0x04,0x09</type_func>\n" +
+                        "</protocol418_condition>\n" +
+                        "</rec>\n" +
                         "</in_condition>\n";
-        String ip= InetAddress.getLocalHost().getHostAddress();
+        String ip = InetAddress.getLocalHost().getHostAddress();
 
-        NetRouterClient netRouterClient = new NetRouterClient("Test", "10.11.26.14", 9003, ip, 9005, localaddr, "");
+        NetRouterClient netRouterClient = new NetRouterClient("Test", "192.168.81.1", 9003, "192.168.81.1", 9005, localaddr, "");
         while (!netRouterClient.start()) {
             log.info("StationAndSectionNetRouter  Start fails.");
             Thread.sleep(10);
@@ -145,15 +145,15 @@ public class StationAndSectionNetRouter {
                         Boolean deal = false;
                         String data = a.substring(2);
                         String b = "od update";
-                        try{
+                        try {
 
                             JSONObject json = new JSONObject(data);
                             //Boolean data = jsonTransfer.stationDataAnalysis(a);
                             deal = jsonTransfer.stationDataAnalysis(json);
-                        }catch (Exception e){
+                        } catch (Exception e) {
                             log.info("StationAndSectionNetRouter数据不对应");
                         }
-                        if(a.equals(b)) {
+                        if (a.equals(b)) {
                             Map<String, String> message = new HashMap<>();
                             message.put("command", "dynamic");
                             message.put("predictionInterval", "15");
@@ -168,8 +168,8 @@ public class StationAndSectionNetRouter {
                             distribution.triggerTask(abc);
                             System.out.println(tongHaoReturnResult.getPathDistribution().size());
                             /*SendData1(netRouterClient, destAddrs,tongHaoReturnResult);*/
-                            SendData(netRouterClient, destAddrs,"path update");
-                            log.info("成功" );
+                            SendData(netRouterClient, destAddrs, "path update");
+                            log.info("成功");
                         }
                     }
                 }

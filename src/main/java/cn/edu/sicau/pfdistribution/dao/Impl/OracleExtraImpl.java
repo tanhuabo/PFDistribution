@@ -1,6 +1,6 @@
 package cn.edu.sicau.pfdistribution.dao.Impl;
-/*
- *@author:周致远
+/**
+ *@author ZhouZhiYuan
  */
 import cn.edu.sicau.pfdistribution.dao.oracle.OracleExtra;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +26,9 @@ public class OracleExtraImpl implements OracleExtra {
         List<Integer> sectionList=new ArrayList<>();
 
         List<String> stations=new ArrayList<>();
-        /*
+        /**
          * 站点id所对应的站名
-         * @param odStations一条路径所经过的所有站点的id
+         * @param odStations 一条路径所经过的所有站点的id
          */
         for(int i=0;i<odStations.size();i++) {
             List cz_name = jdbcTemplate.queryForList(getLineSql + Integer.parseInt(odStations.get(i)));

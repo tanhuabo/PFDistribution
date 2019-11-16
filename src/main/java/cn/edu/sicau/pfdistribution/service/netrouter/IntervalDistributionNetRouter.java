@@ -93,7 +93,7 @@ public class IntervalDistributionNetRouter {
         Address destaddr1 = new Address((byte) 8, (byte) 1, (short) 2, (byte) 1, (short) 6);
         destAddrs.add(destaddr1);
         String ip= InetAddress.getLocalHost().getHostAddress();
-        NetRouterClient netRouterClient = new NetRouterClient("Test", "192.168.81.1", 9003, "10.2.132.70", 9005, localaddr, "");
+        NetRouterClient netRouterClient = new NetRouterClient("Test", "10.11.27.211", 9003, "10.11.27.211", 9005, localaddr, "");
         while (!netRouterClient.start()) {
             log.info("IntervalDistributionNetRouter Start fails.");
             Thread.sleep(10);

@@ -5,6 +5,7 @@ import cn.edu.sicau.pfdistribution.entity.KspQueryResult;
 import cn.edu.sicau.pfdistribution.entity.KspSearchResult;
 import cn.edu.sicau.pfdistribution.entity.SWJTU_DTO;
 import cn.edu.sicau.pfdistribution.service.kspdistribution.MainDistribution;
+import org.apache.spark.sql.execution.columnar.NULL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -54,9 +55,9 @@ public class KspServiceImpl implements KspService {
     @Override
     public List<CrowdNumResult> getSectionCrowdNumBySectionId(GetSectionCrowdNumInitialParameter getSectionCrowdNumInitialParameter) {
         List<CrowdNumResult> list = new ArrayList<>();
-        int sectionID = getSectionCrowdNumInitialParameter.getSectionId();
         Map<Integer, String> SectionIdAndSectionCrowdNum;
-        if (getSectionCrowdNumInitialParameter.getSectionId() != -1) {
+        if (!getSectionCrowdNumInitialParameter.getSectionId().equals("")) {
+            int sectionID = Integer.parseInt(getSectionCrowdNumInitialParameter.getSectionId());
             Map<Integer, String> map = sectionIdAndSectionCrowdNum.getSectionIdAndSectionCrowdNum(sectionID);
             SectionIdAndSectionCrowdNum = map;
         } else {

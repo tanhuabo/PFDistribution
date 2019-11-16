@@ -9,20 +9,24 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class GetSectionCrowdNumInitialParameter {
-    private int sectionId;
+    private String sectionId;
 
-    public GetSectionCrowdNumInitialParameter(){
-        this.sectionId=-1;
-    }
-    public GetSectionCrowdNumInitialParameter(int sectionId){
-        this.sectionId=sectionId;
+    public GetSectionCrowdNumInitialParameter() {
+        this.sectionId = null;
     }
 
-    public int getSectionId() {
+    public GetSectionCrowdNumInitialParameter(String sectionId) {
+        if(sectionId.equals(""))
+            this.sectionId = null;
+        else
+            this.sectionId = sectionId;
+    }
+
+    public String getSectionId() {
         return sectionId;
     }
 
-    public void setSectionId(int sectionId) {
+    public void setSectionId(String sectionId) {
         this.sectionId = sectionId;
     }
 }

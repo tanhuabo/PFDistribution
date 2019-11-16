@@ -41,7 +41,7 @@ class KspDynamicCosting @Autowired()(val getParameter:GetParameter,val stationAn
   }
 
   def transferFee() : Double = {
-    var cost = 5*60 //换乘费用
+    var cost = 24*60 //换乘费用
    /* cost= getParameter.transferTime()*/
     return cost
   }

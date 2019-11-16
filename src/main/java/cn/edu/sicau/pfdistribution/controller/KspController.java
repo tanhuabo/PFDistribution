@@ -22,27 +22,39 @@ public class KspController {
     OracleQueryStationByNameOrIdImpl oracleQueryStationByNameOrId;
     @Autowired
     private RoadPlanningService roadPlanningService;
+
     /**
-     *@author zhouzhiyuan
+     * @author zhouzhiyuan
      */
     @PostMapping("/tripPlan.do")
-    public Object intactFindKsp(SWJTU_DTO swjtu_dto){
-        List<PathSearch> NetResult=roadPlanningService.kspResult(swjtu_dto);
-        ResultMsgKsp resultMsgKsp=new ResultMsgKsp(ResultStatusCode.OK.getErrcode(), ResultStatusCode.OK.getErrmsg(),NetResult);
+    public Object intactFindKsp(SWJTU_DTO swjtu_dto) {
+        List<PathSearch> NetResult = roadPlanningService.kspResult(swjtu_dto);
+        ResultMsgKsp resultMsgKsp = new ResultMsgKsp(ResultStatusCode.OK.getErrcode(), ResultStatusCode.OK.getErrmsg(), NetResult);
         return resultMsgKsp;
     }
 
     @PostMapping("/queryByStation.do")
-    public Object getQueryInfo(QueryStationByNameOrID queryStationBy_nameOrID){
-        List<KspQueryResult> odAndTime= oracleQueryStationByNameOrId.findAll(queryStationBy_nameOrID);
-        ResultMsg2 resultMsg = new ResultMsg2(ResultStatusCode.OK.getErrcode(), ResultStatusCode.OK.getErrmsg(),odAndTime);
-        return resultMsg;
+    public Object getQueryInfo(QueryStationByNameOrID queryStationBy_nameOrID) {
+        List<KspQueryResult> odAndTime = oracleQueryStationByNameOrId.findAll(queryStationBy_nameOrID);
+        if (odAndTime.size() == 0) {
+            ResultMsg2 resultMsg = new ResultMsg2(ResultStatusCode.SYSTEM_ERR.getErrcode(), ResultStatusCode.SYSTEM_ERR.getErrmsg(), odAndTime);
+            return resultMsg;
+        } else {
+            ResultMsg2 resultMsg = new ResultMsg2(ResultStatusCode.OK.getErrcode(), ResultStatusCode.OK.getErrmsg(), odAndTime);
+            return resultMsg;
+        }
     }
 
     @PostMapping("/querySectionsCrowd.do")
+
     public Object GetVolumeRatio(GetSectionCrowdNumInitialParameter getSectionCrowdNumInitialParameter) {
-        List<CrowdNumResult>data=kspService.getSectionCrowdNumBySectionId(getSectionCrowdNumInitialParameter);
-        ReturnResultForm returnResultForm =new ReturnResultForm(ResultStatusCode.OK.getErrcode(),ResultStatusCode.OK.getErrmsg(),data);
-        return returnResultForm;
+        List<CrowdNumResult> data = kspService.getSectionCrowdNumBySectionId(getSectionCrowdNumInitialParameter);
+        if (data.size() == 0) {
+            ReturnResultForm returnResultForm = new ReturnResultForm(ResultStatusCode.SYSTEM_ERR.getErrcode(), ResultStatusCode.SYSTEM_ERR.getErrmsg(), data);
+            return returnResultForm;
+        } else {
+            ReturnResultForm returnResultForm = new ReturnResultForm(ResultStatusCode.OK.getErrcode(), ResultStatusCode.OK.getErrmsg(), data);
+            return returnResultForm;
+        }
     }
 }

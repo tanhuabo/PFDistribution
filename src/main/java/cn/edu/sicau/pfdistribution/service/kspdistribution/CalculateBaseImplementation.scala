@@ -87,7 +87,7 @@ class CalculateBaseImplementation @Autowired() (dynamicCosting:KspDynamicCosting
       val dynamicCost = dynamicCosting.cost_Count(text1)
       var distanceAndTimeCost: mutable.Map[Array[DirectedEdge],String] = mutable.Map()
       for(key <- text1.keys){
-        val str:String = text1(key).toString +" "+ dynamicCost(key).toString
+        val str:String = text1(key).toString +" "+ (dynamicCost(key).toInt/60).toString
         distanceAndTimeCost += (key -> str)
       }
       return distanceAndTimeCost

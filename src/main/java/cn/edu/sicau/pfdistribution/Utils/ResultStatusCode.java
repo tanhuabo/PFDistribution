@@ -2,7 +2,7 @@ package cn.edu.sicau.pfdistribution.Utils;
 
 public enum ResultStatusCode {
     OK(200, "success"),
-    SYSTEM_ERR(30001, "System error");
+    SYSTEM_ERR(500, "search error");
 
     private int errcode;
     private String errmsg;

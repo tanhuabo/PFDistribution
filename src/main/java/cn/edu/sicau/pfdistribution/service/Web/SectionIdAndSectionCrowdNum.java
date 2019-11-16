@@ -26,26 +26,32 @@ public class SectionIdAndSectionCrowdNum {
         Map<String, List<String>> sectionP = stationAndSectionPassengers.getSectionP();
         Map result = new HashMap();
         Iterator keySet = getMap.keySet().iterator();
-        Iterator entrySet = getMap.entrySet().iterator();
         while (keySet.hasNext()) {
             String key = (String) keySet.next();
-            Integer value = (Integer) entrySet.next();
-            String sectionCrowdNum = sectionP.get(key).get(0);
-            Integer id = value;
-            result.put(id, sectionCrowdNum);
+            Integer id = (Integer) getMap.get(key);
+            try {
+                String sectionCrowdNum = sectionP.get(key).get(0);
+                result.put(id,sectionCrowdNum);
+            }catch (Exception e){
+                result.put(id,"0");
+            }
         }
         return result;
+
     }
 
     public Map<Integer, String> getSectionIdAndSectionCrowdNum(Integer id) {
-        Map<String, Integer> getMap = getOracleData.getCZ12IDWithParameterFromDatabase(id);
+        Map result = new HashMap(); Map<String, Integer> getMap = getOracleData.getCZ12IDWithParameterFromDatabase(id);
         Map<String, List<String>> sectionP = stationAndSectionPassengers.getSectionP();
-        Map result = new HashMap();
         Iterator it = getMap.keySet().iterator();
         while (it.hasNext()) {
             String key = (String) it.next();
-            String sectionCrowdNum = sectionP.get(key).get(0);
-            result.put(id, sectionCrowdNum);
+            try {
+                String sectionCrowdNum = sectionP.get(key).get(0);
+                result.put(id, sectionCrowdNum);
+            } catch (Exception e) {
+                result.put(id, "0");
+            }
         }
         return result;
     }

@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
-@author weiyongzhao
- retunr 返回区间id和区间拥挤度的map集合
+ * @author weiyongzhao
+ * retunr 返回区间id和区间拥挤度的map集合
  **/
 @Service
 public class SectionIdAndSectionCrowdNum {
@@ -21,34 +21,31 @@ public class SectionIdAndSectionCrowdNum {
     @Autowired
     StationAndSectionPassengers stationAndSectionPassengers;
 
-    public Map<Integer,String> getSectionIdAndSectionCrowdNum(){
-        Map getMap=getOracleData.getCZ12IDNoParameterFromDatabase();
-        Map<String, List<String>> sectionP= stationAndSectionPassengers.getSectionP();
-        Map result=new HashMap();
-        Iterator keySet=getMap.keySet().iterator();
-        Iterator entrySet=getMap.entrySet().iterator();
-        while (keySet.hasNext()){
-            String key=(String) keySet.next();
-            Integer value= (Integer) entrySet.next();
-            String sectionCrowdNum= sectionP.get(key).get(0);
-            Integer id=value;
-            result.put(id,sectionCrowdNum);
+    public Map<Integer, String> getSectionIdAndSectionCrowdNum() {
+        Map getMap = getOracleData.getCZ12IDNoParameterFromDatabase();
+        Map<String, List<String>> sectionP = stationAndSectionPassengers.getSectionP();
+        Map result = new HashMap();
+        Iterator keySet = getMap.keySet().iterator();
+        Iterator entrySet = getMap.entrySet().iterator();
+        while (keySet.hasNext()) {
+            String key = (String) keySet.next();
+            Integer value = (Integer) entrySet.next();
+            String sectionCrowdNum = sectionP.get(key).get(0);
+            Integer id = value;
+            result.put(id, sectionCrowdNum);
         }
-
-
         return result;
-
     }
 
-    public Map<Integer,String> getSectionIdAndSectionCrowdNum(Integer id){
-        Map<String,Integer>getMap=getOracleData.getCZ12IDWithParameterFromDatabase(id);
-        Map<String, List<String>> sectionP= stationAndSectionPassengers.getSectionP();
-        Map result=new HashMap();
-        Iterator it=getMap.keySet().iterator();
-        while(it.hasNext()){
-            String key=(String) it.next();
-            String sectionCrowdNum= sectionP.get(key).get(0);
-            result.put(id,sectionCrowdNum);
+    public Map<Integer, String> getSectionIdAndSectionCrowdNum(Integer id) {
+        Map<String, Integer> getMap = getOracleData.getCZ12IDWithParameterFromDatabase(id);
+        Map<String, List<String>> sectionP = stationAndSectionPassengers.getSectionP();
+        Map result = new HashMap();
+        Iterator it = getMap.keySet().iterator();
+        while (it.hasNext()) {
+            String key = (String) it.next();
+            String sectionCrowdNum = sectionP.get(key).get(0);
+            result.put(id, sectionCrowdNum);
         }
         return result;
     }

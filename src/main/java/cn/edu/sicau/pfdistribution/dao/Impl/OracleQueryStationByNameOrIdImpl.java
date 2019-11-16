@@ -3,6 +3,7 @@ package cn.edu.sicau.pfdistribution.dao.Impl;
 import cn.edu.sicau.pfdistribution.dao.oracle.OracleQueryStationByNameOrId;
 import cn.edu.sicau.pfdistribution.entity.KspQueryResult;
 import cn.edu.sicau.pfdistribution.service.Web.QueryStationByNameOrID;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -21,13 +22,15 @@ public class OracleQueryStationByNameOrIdImpl implements OracleQueryStationByNam
     private String getLineTime = "select QSZM,ZZZM,QSSJ,ZZSJ,QSQJH,ZZQJH from \"SCOTT\".\"base_lckxfa\" where QSZM=";
 
     /**
-     * @param queryStationByNameOrID
+     * @param queryStationByNameOrID PostMan传递过来的StationNameAndId
      * @author LiYongPing
      * 数据库查询
      * 输入车站名CZ_Name
      * 表Dic_station中查询LJM线路
      * 通过LJM线路查起点站与终点站与起终点时间
      */
+    public static final org.slf4j.Logger log = LoggerFactory.getLogger(OracleQueryStationByNameOrIdImpl.class);
+
     public List<KspQueryResult> findAll(QueryStationByNameOrID queryStationByNameOrID) {
         return getKspQueryResultList(queryStationByNameOrID);
     }
@@ -54,11 +57,15 @@ public class OracleQueryStationByNameOrIdImpl implements OracleQueryStationByNam
     Map<String, String> getStartAndEndTime(QueryStationByNameOrID queryStationByNameOrID) {
         Map<String, String> lineOD = getLineOD(queryStationByNameOrID);
         List<Map<String, Object>> lineTimes = new ArrayList<>();
-        for (String od : lineOD.values()) {
-            String startId = od.split(" ")[0];
-            String endId = od.split(" ")[1];
-            Map<String, Object> map3 = jdbcTemplate.queryForMap(getLineTime + "'" + startId + "'" + "and ZZZM=" + "'" + endId + "'" + "AND ROWNUM < 2");
-            lineTimes.add(map3);
+        try {
+            for (String od : lineOD.values()) {
+                String startId = od.split(" ")[0];
+                String endId = od.split(" ")[1];
+                Map<String, Object> map3 = jdbcTemplate.queryForMap(getLineTime + "'" + startId + "'" + "and ZZZM=" + "'" + endId + "'" + "AND ROWNUM < 2");
+                lineTimes.add(map3);
+            }
+        } catch (Exception e) {
+            exceptionPrint(e);
         }
         Map<String, String> StartAndEndTime = new HashMap<>();
         for (Map<String, Object> name : lineTimes) {
@@ -76,9 +83,13 @@ public class OracleQueryStationByNameOrIdImpl implements OracleQueryStationByNam
     Map<String, String> getLineOD(QueryStationByNameOrID queryStationByNameOrID) {
         List<String> linesNames = getLinesNames(queryStationByNameOrID);
         List<Map<String, Object>> lineODNames = new ArrayList<>();
-        for (String line : linesNames) {
-            Map<String, Object> map2 = jdbcTemplate.queryForMap(getLineODName + "'" + line + "'");
-            lineODNames.add(map2);
+        try {
+            for (String line : linesNames) {
+                Map<String, Object> map2 = jdbcTemplate.queryForMap(getLineODName + "'" + line + "'");
+                lineODNames.add(map2);
+            }
+        } catch (Exception e) {
+            exceptionPrint(e);
         }
         Map<String, String> lineOD = new HashMap<>();
         for (Map<String, Object> name : lineODNames) {
@@ -91,14 +102,27 @@ public class OracleQueryStationByNameOrIdImpl implements OracleQueryStationByNam
     }
 
     List<String> getLinesNames(QueryStationByNameOrID queryStationByNameOrID) {
-        List<Map<String, Object>> Line_ID_map = jdbcTemplate.queryForList(getLineNameAndStationID + "'" + queryStationByNameOrID.getStationName() + "'");
-        Iterator<Map<String, Object>> it1 = Line_ID_map.iterator();
         List<String> linesNames = new ArrayList<>();
-        while (it1.hasNext()) {
-            Map<String, Object> LineName = it1.next();
-            Object ljm = LineName.get("LJM");
-            linesNames.add(ljm.toString());
+        try {
+            List<Map<String, Object>> Line_ID_map = jdbcTemplate.queryForList(getLineNameAndStationID + "'" + queryStationByNameOrID.getStationName() + "'");
+            Iterator<Map<String, Object>> it1 = Line_ID_map.iterator();
+            while (it1.hasNext()) {
+                Map<String, Object> LineName = it1.next();
+                Object ljm = LineName.get("LJM");
+                linesNames.add(ljm.toString());
+            }
+        } catch (Exception e) {
+            exceptionPrint(e);
         }
         return linesNames;
+    }
+
+    private void exceptionPrint(Exception e) {
+        log.error("LocalizedMessage:{}", e.getLocalizedMessage());
+        log.error("exception message:{}", e.getMessage());
+        log.error("exception cause:{}", e.getCause());
+        log.error("exception suppressed:{}", e.getSuppressed());
+        log.error("exception toString and track space : {}", "\r\n" + e);
+        e.printStackTrace();
     }
 }

@@ -27,7 +27,7 @@ public class KspController {
      */
     @PostMapping("/tripPlan.do")
     public Object intactFindKsp(SWJTU_DTO swjtu_dto){
-        List<NetworkResult> NetResult=roadPlanningService.kspresult(swjtu_dto);
+        List<PathSearch> NetResult=roadPlanningService.kspResult(swjtu_dto);
         ResultMsgKsp resultMsgKsp=new ResultMsgKsp(ResultStatusCode.OK.getErrcode(), ResultStatusCode.OK.getErrmsg(),NetResult);
         return resultMsgKsp;
     }

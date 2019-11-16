@@ -1,27 +1,25 @@
 package cn.edu.sicau.pfdistribution.entity;
 
-import cn.edu.sicau.pfdistribution.entity.NetworkResult;
-
 import java.util.List;
-/*
- *@author:周致远
+/**
+ * @author:周致远
  */
 
-/**
- * @param status状态码
- * @param msg消息状态
- * @param data数据body
- * 定义返回的josn数据的格式
- */
+
 public class ResultMsgKsp {
     private int status;
     private String msg;
-    private List<NetworkResult> data;
-
-    public ResultMsgKsp(int status, String msg, List<NetworkResult> data){
-        this.status=status;
-        this.msg=msg;
-        this.data=data;
+    private List<PathSearch> data;
+    /**
+     * @param status 状态码
+     * @param msg 消息状态
+     * @param data 数据body
+     * 定义返回的json数据的格式
+     */
+    public ResultMsgKsp(int status, String msg, List<PathSearch> data) {
+        this.status = status;
+        this.msg = msg;
+        this.data = data;
     }
 
     public int getStatus() {
@@ -40,11 +38,11 @@ public class ResultMsgKsp {
         this.msg = msg;
     }
 
-    public List<NetworkResult> getData() {
+    public List<PathSearch> getData() {
         return data;
     }
 
-    public void setData(List<NetworkResult> data) {
+    public void setData(List<PathSearch> data) {
         this.data = data;
     }
 }

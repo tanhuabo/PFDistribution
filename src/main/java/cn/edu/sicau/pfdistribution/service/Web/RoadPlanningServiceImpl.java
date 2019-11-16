@@ -1,17 +1,15 @@
 package cn.edu.sicau.pfdistribution.service.Web;
-/*
+/**
  *@author:周致远
  */
-import cn.edu.sicau.pfdistribution.dao.oracle.OracleExtra;
+import cn.edu.sicau.pfdistribution.dao.oracle.GetSectionId;
 import cn.edu.sicau.pfdistribution.dao.oracle.OracleGetTransferStationsById;
-import cn.edu.sicau.pfdistribution.entity.NetworkResult;
+import cn.edu.sicau.pfdistribution.entity.PathSearch;
 import cn.edu.sicau.pfdistribution.entity.SWJTU_DTO;
 import cn.edu.sicau.pfdistribution.service.kspdistribution.MainDistribution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.stringtemplate.v4.ST;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 @Service
@@ -24,12 +22,13 @@ public class RoadPlanningServiceImpl implements RoadPlanningService {
     private OracleGetTransferStationsById oracleGetTransferStationsById;
 
     @Autowired
-    private OracleExtra oracleExtra;
+    private GetSectionId getSectionId;
+
 
     @Override
-    public List<NetworkResult> kspresult(SWJTU_DTO swjtu_dto) {
+    public List<PathSearch> kspResult(SWJTU_DTO swjtu_dto) {
 
-        List<NetworkResult> PlanningResults=new ArrayList<>();
+        List<PathSearch> PlanningResults=new ArrayList<>();
         //搜索到的时间最少、换乘最少的两条路径
         Map map = (Map) mainDistribution.getDistribution(swjtu_dto.getStartStation()+" "+swjtu_dto.getEndStation());
         Iterator it=map.keySet().iterator();
@@ -47,45 +46,51 @@ public class RoadPlanningServiceImpl implements RoadPlanningService {
             ValueLT= Arrays.asList(LengthTime.split(" "));
             Double value= Double.valueOf(ValueLT.get(0));
             String Time= ValueLT.get(1);
+            String price = getCost(value);
 
-            //求费用
-            Integer price = 0;
-            if(value<=6){
-                price=2;
-            }
-            else if (value<=11){
-                price=3;
-            }
-            else if(value<=17){
-                price=4;
-            }
-            else if(value<=24){
-                price=5;
-            }
-            else if(value<=32){
-                price=6;
-            }
-            else if(value>32&&value<=41){
-                price=7;
-            }
-            else if(value>41&&value<=51){
-                price=8;
-            }
-            else if(value>51&&value<=63){
-                price=9;
-            }
-            else
-                price=10;
-
-            List<List<String>> transferstations=oracleGetTransferStationsById.getTransferStations(odstations);
+            List<List<String>> transferStations=oracleGetTransferStationsById.getTransferStations(odstations);
             List<String> stations=oracleGetTransferStationsById.getStationsById(odstations);
             String totalTimeStr=Time;
-            String totalPriceStr=String.valueOf(price);
-            List<Integer> sectionList = oracleExtra.sectionList(odstations);
-            NetworkResult networkResult=new NetworkResult(Integer.toString(i),totalTimeStr,totalPriceStr,sectionList,stations,transferstations);
+            String totalPriceStr=price;
+            List<Integer> sectionList = getSectionId.sectionList(odstations);
+            PathSearch networkResult=new PathSearch(Integer.toString(i),totalTimeStr,totalPriceStr,sectionList,stations,transferStations);
             PlanningResults.add(networkResult);
         }
         return PlanningResults;
+    }
+
+    private String getCost(Double value) {
+        /**
+         * 优先判断里程数中最集中的部分，再判断分散的部分，提高运行效率
+         */
+        String price;
+        if(value>24 && value<=32){
+            price = "6";
+        }
+        else if(value>17 && value<=24){
+            price = "5";
+        }
+        else if(value>32 && value<=41){
+            price = "7";
+        }
+        else if(value>11 && value<=17){
+            price = "4";
+        }
+        else if(value>41 && value<=51){
+            price = "8";
+        }
+        else if(value>6 && value<=11){
+            price = "3";
+        }
+        else if(value>51 && value<=63){
+            price = "9";
+        }
+        else if(value<=6){
+            price = "2";
+        }
+        else
+            price = "10";
+        return price;
     }
 
 
